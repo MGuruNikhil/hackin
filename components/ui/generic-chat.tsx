@@ -44,10 +44,13 @@ export function GenericChat({ config, className = "" }: GenericChatProps) {
 		body: {
 			data: config.chatData,
 		},
-		onError: error => {
-			console.error("Chat error details:", error)
-			toast.error(`Failed to send message: ${error.message || 'Unknown error'}`)
-		},
+	onError: error => {
+		console.error("Chat error details:", error)
+		toast.error(`Failed to send message: ${error.message || 'Unknown error'}`)
+	},
+	onFinish: (message) => {
+		console.log(`[CHAT] Message finished:`, message)
+	},
 	onToolCall: ({ toolCall }) => {
 		console.log(`[CHAT] Tool called:`, toolCall.toolName, toolCall.args)
 		

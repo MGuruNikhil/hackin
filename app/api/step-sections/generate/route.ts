@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
 			)
 		}
 
-		const prompt = `Generate a comprehensive implementation plan for this hackathon project idea:
+		const prompt = `Generate a comprehensive implementation plan for this software development project idea:
 
 **Project Idea:**
 Title: ${ideaData.title}
@@ -92,7 +92,7 @@ Content: ${ideaData.content}
 1. Break down the implementation into 5 key sections (e.g., Planning & Setup, Backend Development, Frontend Development, Integration & Testing, Deployment & Polish)
 2. Each section should have 5-8 specific, actionable todo items
 3. Todos should be clear, concrete tasks that a development team can execute
-4. Consider the typical hackathon timeline and scope
+4. Consider realistic project timeline and scope
 5. Focus on MVP features and essential functionality
 6. Include setup, development, testing, and deployment phases
 7. Make sure todos are specific enough to track progress

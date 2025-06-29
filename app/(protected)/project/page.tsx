@@ -22,7 +22,7 @@ export default async function ProjectsPage() {
 						Start Building Amazing Projects
 					</h1>
 					<p className="text-lg text-center text-muted-foreground max-w-2xl">
-						Turn your hackathon ideas into reality with guided project
+						Turn your ideas into reality with guided project
 						management and AI powered assistance
 					</p>
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl mt-8">
@@ -35,7 +35,7 @@ export default async function ProjectsPage() {
 							</CardHeader>
 							<CardContent>
 								<CardDescription className="text-left">
-									Document your hackathon projects with all the important
+									Document your projects with all the important
 									details and track your progress.
 								</CardDescription>
 							</CardContent>
@@ -84,7 +84,7 @@ export default async function ProjectsPage() {
 								Your Projects
 							</h1>
 							<p className="text-muted-foreground">
-								View and manage all your hackathon projects
+								View and manage all your projects
 							</p>
 						</div>
 						<Button asChild>

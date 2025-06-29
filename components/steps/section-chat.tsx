@@ -109,15 +109,10 @@ export function SectionChat({ projectId, ideaId, sectionId, idea, section }: Sec
 			sectionId: sectionId,
 			ideaId: ideaId,
 		},
-		placeholder: "Ask about this section, request tasks, or discuss implementation details...",
+		placeholder: "Ask about this section, discuss implementation details, or get guidance...",
 		emptyStateTitle: "Ready to discuss this section?",
-		emptyStateDescription: "Ask questions about implementation details, get guidance, or request specific tasks.",
+		emptyStateDescription: "Ask questions about implementation details, get guidance, or discuss approaches.",
 		loadingText: "Loading section chat...",
-		onSuccess: () => {
-			console.log(`[SECTION] Tool call successful, reloading todos`)
-			// This will now only trigger when AI actually uses tools to modify data
-			loadTodos()
-		},
 	}
 
 	if (loading) {

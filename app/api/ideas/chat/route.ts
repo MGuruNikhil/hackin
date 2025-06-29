@@ -70,7 +70,7 @@ export async function POST(request: Request) {
 			)
 			.join("\n")
 
-		const systemPrompt = `You are an AI assistant helping to refine and improve hackathon project ideas. You should be:
+		const systemPrompt = `You are an AI assistant helping to refine and improve software development project ideas. You should be:
 - Constructive and encouraging
 - Focused on practical implementation
 - Knowledgeable about technology trends

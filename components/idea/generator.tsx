@@ -283,7 +283,7 @@ export function IdeaGenerator({ projectId }: IdeaGeneratorProps) {
 							Project Ideas
 						</h1>
 						<p className="text-lg text-muted-foreground max-w-2xl">
-							AI-generated project ideas tailored to your hackathon context and
+							AI-generated project ideas tailored to your project context and
 							team expertise
 						</p>
 					</div>
@@ -334,7 +334,7 @@ export function IdeaGenerator({ projectId }: IdeaGeneratorProps) {
 						<div className="space-y-2">
 							<h3 className="text-xl font-semibold">No Ideas Yet</h3>
 							<p className="text-muted-foreground max-w-md">
-								Generate AI-powered project ideas based on your hackathon
+								Generate AI-powered project ideas based on your project
 								context and team skills to get started.
 							</p>
 						</div>

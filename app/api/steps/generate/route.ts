@@ -38,7 +38,7 @@ export async function POST(request: Request) {
 
 		const ideaData = idea[0]
 
-		const systemPrompt = `You are an AI assistant helping to create detailed implementation steps for hackathon project ideas. You should generate clear, actionable, and specific steps that development teams can follow.
+		const systemPrompt = `You are an AI assistant helping to create detailed implementation steps for software development project ideas. You should generate clear, actionable, and specific steps that development teams can follow.
 
 Current Idea Details:
 Title: ${ideaData.title}
@@ -50,7 +50,7 @@ When generating steps, follow these guidelines:
 - Each step should be specific and actionable
 - Focus on development workflow and technical implementation
 - Include setup, development, testing, and deployment phases
-- Consider the hackathon time constraints
+- Consider realistic project timelines
 - Use bullet points or numbered lists for clarity
 - Be practical and focused on deliverable outcomes
 
