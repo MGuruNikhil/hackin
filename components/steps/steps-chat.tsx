@@ -49,6 +49,8 @@ export function StepsChat({ projectId, ideaId, idea }: StepsChatProps) {
 	const [loading, setLoading] = useState(true)
 	const [showAddForm, setShowAddForm] = useState(false)
 	const [newStepContent, setNewStepContent] = useState("")
+	const [initialMessages, setInitialMessages] = useState<{ id: string; role: "user" | "assistant"; content: string }[]>([])
+	const [chatHistoryLoaded, setChatHistoryLoaded] = useState(false)
 
 	// Use the useChat hook for streaming AI chat
 	const {
@@ -57,8 +59,10 @@ export function StepsChat({ projectId, ideaId, idea }: StepsChatProps) {
 		handleInputChange,
 		handleSubmit,
 		isLoading: chatLoading,
+		setMessages,
 	} = useChat({
 		api: "/api/steps/chat",
+		initialMessages: initialMessages,
 		body: {
 			data: {
 				ideaId: ideaId,
@@ -73,25 +77,36 @@ export function StepsChat({ projectId, ideaId, idea }: StepsChatProps) {
 		},
 	})
 
-	// Fetch existing steps
+	// Fetch existing steps and chat history
 	useEffect(() => {
-		const fetchSteps = async () => {
+		const fetchData = async () => {
 			try {
-				const response = await fetch(`/api/steps?ideaId=${ideaId}`)
-				if (response.ok) {
-					const result = await response.json()
-					setSteps(result.data || [])
+				// Fetch steps
+				const stepsResponse = await fetch(`/api/steps?ideaId=${ideaId}`)
+				if (stepsResponse.ok) {
+					const stepsResult = await stepsResponse.json()
+					setSteps(stepsResult.data || [])
+				}
+
+				// Fetch chat history
+				const chatResponse = await fetch(`/api/steps/chat/history?ideaId=${ideaId}`)
+				if (chatResponse.ok) {
+					const chatResult = await chatResponse.json()
+					setInitialMessages(chatResult.messages || [])
+					setMessages(chatResult.messages || [])
+					setChatHistoryLoaded(true)
 				}
 			} catch (error) {
-				console.error("Error fetching steps:", error)
+				console.error("Error fetching data:", error)
 			} finally {
 				setLoading(false)
 			}
 		}
+		
 		if (ideaId) {
-			fetchSteps()
+			fetchData()
 		}
-	}, [ideaId])
+	}, [ideaId, setMessages])
 
 	const parseAndCreateSteps = async (aiResponse: string) => {
 		const stepLines = aiResponse
@@ -181,7 +196,7 @@ Description: ${idea.description}
 Content: ${idea.content}
 Please provide actionable, specific steps that a development team can follow to implement this idea. Each step should be clear and focused on a particular aspect of the development process.`
 		
-		handleSubmit(new Event("submit") as any, {
+		handleSubmit(new Event("submit") as unknown as React.FormEvent, {
 			data: { ideaId, prompt }
 		})
 	}
@@ -408,7 +423,14 @@ Please provide actionable, specific steps that a development team can follow to 
 				{/* Chat Messages */}
 				<div className="flex-1 overflow-hidden">
 					<ScrollArea className="h-full p-4 lg:p-6">
-						{messages.length === 0 ? (
+						{!chatHistoryLoaded ? (
+							<div className="flex items-center justify-center h-full">
+								<div className="flex items-center gap-2">
+									<Loader2 className="h-4 w-4 animate-spin" />
+									<span className="text-sm text-muted-foreground">Loading chat history...</span>
+								</div>
+							</div>
+						) : messages.length === 0 ? (
 							<div className="flex flex-col items-center justify-center h-full text-center space-y-4">
 								<div className="p-4 bg-muted/30 rounded-full">
 									<Target className="h-8 w-8 text-muted-foreground" />
@@ -421,22 +443,21 @@ Please provide actionable, specific steps that a development team can follow to 
 										Get started by generating AI-powered implementation steps or ask specific questions about your development approach.
 									</p>
 								</div>
-								{steps.length === 0 && (
-									<Button onClick={generateSteps} disabled={chatLoading}>
-										{chatLoading ? (
-											<>
-												<Sparkles className="h-4 w-4 mr-2 animate-spin" />
-												Generating...
-											</>
-										) : (
-											<>
-												<Sparkles className="h-4 w-4 mr-2" />
-												Generate Implementation Steps
-											</>
-										)}
-									</Button>
+						{steps.length === 0 && (
+							<Button onClick={generateSteps} disabled={chatLoading || !chatHistoryLoaded}>
+								{chatLoading ? (
+									<>
+										<Sparkles className="h-4 w-4 mr-2 animate-spin" />
+										Generating...
+									</>
+								) : (
+									<>
+										<Sparkles className="h-4 w-4 mr-2" />
+										Generate Implementation Steps
+									</>
 								)}
-							</div>
+							</Button>
+						)}							</div>
 						) : (
 							<div className="space-y-4 max-w-4xl">
 								{messages.map((message, index) => (
@@ -484,6 +505,7 @@ Please provide actionable, specific steps that a development team can follow to 
 							onChange={handleInputChange}
 							placeholder="e.g., 'Generate implementation steps' or 'How should I structure the database?'"
 							className="flex-1 min-h-[60px] max-h-32 resize-none text-sm lg:text-base"
+							disabled={!chatHistoryLoaded}
 							onKeyDown={e => {
 								if (e.key === "Enter" && !e.shiftKey) {
 									e.preventDefault()
@@ -493,7 +515,7 @@ Please provide actionable, specific steps that a development team can follow to 
 						/>
 						<Button
 							type="submit"
-							disabled={chatLoading || !input.trim()}
+							disabled={chatLoading || !input.trim() || !chatHistoryLoaded}
 							size="lg"
 							className="h-[60px] px-4 lg:px-6"
 						>

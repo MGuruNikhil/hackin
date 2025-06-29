@@ -104,6 +104,7 @@ export function SectionChat({ projectId, ideaId, sectionId, idea, section }: Sec
 	// Chat configuration
 	const chatConfig = {
 		apiEndpoint: `/api/step-sections/${sectionId}/chat`,
+		messagesEndpoint: `/api/step-sections/${sectionId}/chat/history`,
 		chatData: {
 			sectionId: sectionId,
 			ideaId: ideaId,
@@ -113,6 +114,7 @@ export function SectionChat({ projectId, ideaId, sectionId, idea, section }: Sec
 		emptyStateDescription: "Ask questions about implementation details, get guidance, or request specific tasks.",
 		loadingText: "Loading section chat...",
 		onSuccess: () => {
+			console.log(`[SECTION] Tool call successful, reloading todos`)
 			// This will now only trigger when AI actually uses tools to modify data
 			loadTodos()
 		},

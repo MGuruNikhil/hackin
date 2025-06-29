@@ -6,7 +6,7 @@ import { getCurrentSession } from "@/lib/session"
 
 export async function PATCH(
 	request: Request,
-	{ params }: { params: { id: string } },
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const { user } = await getCurrentSession()
@@ -15,7 +15,8 @@ export async function PATCH(
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 		}
 
-		const todoId = Number.parseInt(params.id)
+		const { id } = await params
+		const todoId = Number.parseInt(id)
 
 		if (Number.isNaN(todoId)) {
 			return NextResponse.json({ error: "Invalid todo ID" }, { status: 400 })
@@ -57,7 +58,7 @@ export async function PATCH(
 
 export async function DELETE(
 	_request: Request,
-	{ params }: { params: { id: string } },
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const { user } = await getCurrentSession()
@@ -66,7 +67,8 @@ export async function DELETE(
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 		}
 
-		const todoId = Number.parseInt(params.id)
+		const { id } = await params
+		const todoId = Number.parseInt(id)
 
 		if (Number.isNaN(todoId)) {
 			return NextResponse.json({ error: "Invalid todo ID" }, { status: 400 })

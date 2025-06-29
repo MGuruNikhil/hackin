@@ -11,7 +11,7 @@ import { Markdown } from "@/components/markdown/render"
 
 interface ChatConfig {
 	apiEndpoint: string
-	chatData: Record<string, any>
+	chatData: Record<string, unknown>
 	messagesEndpoint?: string
 	placeholder?: string
 	emptyStateTitle?: string
@@ -48,20 +48,25 @@ export function GenericChat({ config, className = "" }: GenericChatProps) {
 			console.error("Chat error details:", error)
 			toast.error(`Failed to send message: ${error.message || 'Unknown error'}`)
 		},
-		onToolCall: ({ toolCall }) => {
-			// Only trigger onSuccess when tools are actually called (meaning data was modified)
-			if (config.onSuccess && (
-				toolCall.toolName === 'createTodo' || 
-				toolCall.toolName === 'updateTodo' || 
-				toolCall.toolName === 'deleteTodo'
-			)) {
-				// Use setTimeout to avoid triggering during render
-				setTimeout(() => {
-					config.onSuccess?.()
-				}, 100)
-			}
-		},
-	})
+	onToolCall: ({ toolCall }) => {
+		console.log(`[CHAT] Tool called:`, toolCall.toolName, toolCall.args)
+		
+		// Only trigger onSuccess when tools are actually called (meaning data was modified)
+		if (config.onSuccess && (
+			toolCall.toolName === 'createTodo' || 
+			toolCall.toolName === 'updateTodo' || 
+			toolCall.toolName === 'deleteTodo'
+		)) {
+			console.log(`[CHAT] Triggering onSuccess callback for tool:`, toolCall.toolName)
+			// Use setTimeout to avoid triggering during render
+			setTimeout(() => {
+				config.onSuccess?.()
+			}, 100)
+		}
+	},
+	onFinish: (message) => {
+		console.log(`[CHAT] Message finished:`, message)
+	},	})
 
 	// Function to scroll to bottom
 	const scrollToBottom = () => {
