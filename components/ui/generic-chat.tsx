@@ -44,32 +44,14 @@ export function GenericChat({ config, className = "" }: GenericChatProps) {
 		body: {
 			data: config.chatData,
 		},
-	onError: error => {
-		console.error("Chat error details:", error)
-		toast.error(`Failed to send message: ${error.message || 'Unknown error'}`)
-	},
-	onFinish: (message) => {
-		console.log(`[CHAT] Message finished:`, message)
-	},
-	onToolCall: ({ toolCall }) => {
-		console.log(`[CHAT] Tool called:`, toolCall.toolName, toolCall.args)
-		
-		// Only trigger onSuccess when tools are actually called (meaning data was modified)
-		if (config.onSuccess && (
-			toolCall.toolName === 'createTodo' || 
-			toolCall.toolName === 'updateTodo' || 
-			toolCall.toolName === 'deleteTodo'
-		)) {
-			console.log(`[CHAT] Triggering onSuccess callback for tool:`, toolCall.toolName)
-			// Use setTimeout to avoid triggering during render
-			setTimeout(() => {
-				config.onSuccess?.()
-			}, 100)
-		}
-	},
-	onFinish: (message) => {
-		console.log(`[CHAT] Message finished:`, message)
-	},	})
+		onError: error => {
+			console.error("Chat error details:", error)
+			toast.error(`Failed to send message: ${error.message || 'Unknown error'}`)
+		},
+		onFinish: (message) => {
+			console.log(`[CHAT] Message finished:`, message)
+		},
+	})
 
 	// Function to scroll to bottom
 	const scrollToBottom = () => {

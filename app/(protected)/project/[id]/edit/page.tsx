@@ -31,12 +31,12 @@ export default async function EditProjectPage({
 
 	// Prepare initial data for the form
 	const initialData = {
-		hackathon_name: project.hackathonName,
-		theme: project.theme || "",
-		tools: project.suggestedTech || "",
-		judging_criteria: project.judgingCriteria || "",
-		additional_data: project.additionalData || "",
-		submision_time: project.submissionTime ? new Date(project.submissionTime) : new Date(),
+		name: project.hackathonName,
+		description: project.theme || "",
+		tech_stack: project.suggestedTech || "",
+		timeline: project.judgingCriteria || "",
+		additional_notes: project.additionalData || "",
+		target_deadline: project.submissionTime ? new Date(project.submissionTime) : new Date(),
 	}
 
 	return (

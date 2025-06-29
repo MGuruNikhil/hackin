@@ -1,6 +1,6 @@
 import { createOpenRouter } from "@openrouter/ai-sdk-provider"
 import { streamText } from "ai"
-import { eq, desc } from "drizzle-orm"
+import { eq } from "drizzle-orm"
 import { db } from "@/lib/db"
 import { env } from "@/lib/env"
 import { ideas, stepSections, stepSectionChats, stepTodos } from "@/lib/schema"
@@ -17,11 +17,12 @@ export async function POST(
 		}
 
 		const { id: sectionId } = await params
-	const { messages } = await request.json()
-	const userMessage = messages[messages.length - 1].content
+		const { messages } = await request.json()
+		const userMessage = messages[messages.length - 1].content
 
-	console.log(`[API] Processing chat for section ${sectionId}, user message: "${userMessage}"`)
-	console.log(`[API] Total messages in conversation:`, messages.length)
+		console.log(`[API] Processing chat for section ${sectionId}, user message: "${userMessage}"`)
+		console.log(`[API] Total messages in conversation:`, messages.length)
+
 		// Get section and idea details
 		const sectionData = await db
 			.select({
@@ -53,24 +54,6 @@ export async function POST(
 			createdAt: new Date(),
 		})
 
-		// Get previous chat messages for context
-		const previousChats = await db
-			.select()
-			.from(stepSectionChats)
-			.where(eq(stepSectionChats.sectionId, section.id))
-			.orderBy(desc(stepSectionChats.createdAt))
-			.limit(10)
-
-		const chatHistory = previousChats
-			.reverse()
-			.map(chat =>
-				chat.message.startsWith("AI:")
-					? `Assistant: ${chat.message.slice(3)}`
-					: chat.message
-			)
-			.join("\n")
-
-		console.log(`[API] Processing chat for section ${sectionId}, user message: "${userMessage}"`)
 		console.log(`[API] Section details:`, { id: section.id, title: section.title })
 		console.log(`[API] Existing todos:`, existingTodos.length)
 
@@ -79,13 +62,13 @@ export async function POST(
 		})
 
 		console.log(`[API] Starting streamText with model...`)
-	console.log(`[API] OpenRouter API Key present:`, !!env.OPENROUTER_API_KEY)
-	console.log(`[API] Latest user message:`, userMessage)
-	console.log(`[API] Full conversation has ${messages.length} messages`)
+		console.log(`[API] OpenRouter API Key present:`, !!env.OPENROUTER_API_KEY)
+		console.log(`[API] Latest user message:`, userMessage)
+		console.log(`[API] Full conversation has ${messages.length} messages`)
 
-	const result = await streamText({
-		model: openrouter("mistralai/mistral-small-3.2-24b-instruct:free"),
-		system: `You are a helpful AI assistant for software development tasks. 
+		const result = await streamText({
+			model: openrouter("mistralai/mistral-small-3.2-24b-instruct:free"),
+			system: `You are a helpful AI assistant for software development tasks. 
 
 Project Context:
 - Idea: ${idea.title}
@@ -99,32 +82,34 @@ ${existingTodos.length > 0
 	: 'No tasks have been created yet for this section.'}
 
 Help the user with questions about this section, provide guidance, discuss implementation details, and offer suggestions for completing the tasks.`,
-		messages: messages, // Pass the full conversation history
-		onFinish: async (finishResult) => {
-			console.log(`[API] AI response finished - Text length:`, finishResult.text?.length || 0)
-			console.log(`[API] AI response text:`, finishResult.text)
-			
-			// Store AI response
-			await db.insert(stepSectionChats).values({
-				sectionId: section.id,
-				message: `AI: ${finishResult.text}`,
-				createdAt: new Date(),
-			})
-		},
-	})
-	console.log(`[API] StreamText created successfully, returning response`)
-	
-	// Return the streaming response with proper headers
-	const response = result.toDataStreamResponse()
-	
-	// Add CORS headers if needed
-	response.headers.set('Access-Control-Allow-Origin', '*')
-	response.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS')
-	response.headers.set('Access-Control-Allow-Headers', 'Content-Type')
-	
-	console.log(`[API] Response headers:`, Object.fromEntries(response.headers.entries()))
-	
-	return response	} catch (error) {
+			messages: messages, // Pass the full conversation history
+			onFinish: async (finishResult) => {
+				console.log(`[API] AI response finished - Text length:`, finishResult.text?.length || 0)
+				console.log(`[API] AI response text:`, finishResult.text)
+				
+				// Store AI response
+				await db.insert(stepSectionChats).values({
+					sectionId: section.id,
+					message: `AI: ${finishResult.text}`,
+					createdAt: new Date(),
+				})
+			},
+		})
+
+		console.log(`[API] StreamText created successfully, returning response`)
+		
+		// Return the streaming response with proper headers
+		const response = result.toDataStreamResponse()
+		
+		// Add CORS headers if needed
+		response.headers.set('Access-Control-Allow-Origin', '*')
+		response.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS')
+		response.headers.set('Access-Control-Allow-Headers', 'Content-Type')
+		
+		console.log(`[API] Response headers:`, Object.fromEntries(response.headers.entries()))
+		
+		return response
+	} catch (error) {
 		console.error(`[API] Error in streamText:`, error)
 		return new Response(`Failed to process chat message: ${error}`, { status: 500 })
 	}

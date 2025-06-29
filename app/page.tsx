@@ -50,7 +50,7 @@ export default function Index() {
 						Build it fast
 					</h1>
 					<p className="text-xl text-muted-foreground">
-						Tell us what you want to build and we'll guide you through every step
+						Tell us what you want to build and we&apos;ll guide you through every step
 					</p>
 				</div>
 

@@ -7,12 +7,12 @@ import { getCurrentSession } from "@/lib/session"
 
 // Define the schema for updating a project
 const updateProjectSchema = z.object({
-	hackathon_name: z.string().min(1, "Hackathon name is required"),
-	theme: z.string().optional(),
-	tools: z.string().optional(),
-	judging_criteria: z.string().optional(),
-	additional_data: z.string().optional(),
-	submision_time: z.string().datetime(),
+	name: z.string().min(1, "Project name is required"),
+	description: z.string().optional(),
+	tech_stack: z.string().optional(),
+	timeline: z.string().optional(),
+	additional_notes: z.string().optional(),
+	target_deadline: z.string().datetime().optional(),
 })
 
 export async function PUT(
@@ -46,29 +46,28 @@ export async function PUT(
 			)
 		}
 
-		const {
-			hackathon_name,
-			theme,
-			tools,
-			judging_criteria,
-			additional_data,
-			submision_time,
-		} = validation.data
+	const {
+		name,
+		description,
+		tech_stack,
+		timeline,
+		additional_notes,
+		target_deadline,
+	} = validation.data
 
-		// Update the project in the database
-		const [updatedProject] = await db
-			.update(projects)
-			.set({
-				hackathonName: hackathon_name,
-				theme: theme || null,
-				suggestedTech: tools || null,
-				judgingCriteria: judging_criteria || null,
-				additionalData: additional_data || null,
-				submissionTime: new Date(submision_time),
-			})
-			.where(and(eq(projects.id, projectId), eq(projects.userId, user.id)))
-			.returning()
-
+	// Update the project in the database
+	const [updatedProject] = await db
+		.update(projects)
+		.set({
+			hackathonName: name,
+			theme: description || null,
+			suggestedTech: tech_stack || null,
+			judgingCriteria: timeline || null,
+			additionalData: additional_notes || null,
+			submissionTime: target_deadline ? new Date(target_deadline) : new Date(),
+		})
+		.where(and(eq(projects.id, projectId), eq(projects.userId, user.id)))
+		.returning()
 		if (!updatedProject) {
 			return new NextResponse(
 				JSON.stringify({ error: "Project not found or you don't have permission to edit it" }),
