@@ -94,12 +94,15 @@ export const steps = pgTable("step", {
 	content: text("content").notNull(),
 	isDone: boolean("is_done").notNull().default(false),
 	order: integer("order"),
+	ideaId: integer("idea_id")
+		.notNull()
+		.references(() => ideas.id, { onDelete: "cascade" }),
 	projectId: integer("project_id")
 		.notNull()
 		.references(() => projects.id, { onDelete: "cascade" }),
 })
 
-// StepChat table
+// StepChat table (for individual step discussions)
 export const stepChats = pgTable("step_chat", {
 	id: serial("id").primaryKey(),
 	message: text("message").notNull(),
@@ -112,6 +115,63 @@ export const stepChats = pgTable("step_chat", {
 	userId: integer("user_id")
 		.notNull()
 		.references(() => users.id, { onDelete: "cascade" }),
+})
+
+// Step Sections table (for organizing steps into sections)
+export const stepSections = pgTable("step_section", {
+	id: serial("id").primaryKey(),
+	title: text("title").notNull(),
+	description: text("description"),
+	order: integer("order").notNull().default(0),
+	isCompleted: boolean("is_completed").notNull().default(false),
+	ideaId: integer("idea_id")
+		.notNull()
+		.references(() => ideas.id, { onDelete: "cascade" }),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+})
+
+// Step Todos table (for individual todos within sections)
+export const stepTodos = pgTable("step_todo", {
+	id: serial("id").primaryKey(),
+	title: text("title").notNull(),
+	description: text("description"),
+	isCompleted: boolean("is_completed").notNull().default(false),
+	order: integer("order").notNull().default(0),
+	sectionId: integer("section_id")
+		.notNull()
+		.references(() => stepSections.id, { onDelete: "cascade" }),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+})
+
+// StepPlanningChat table (for implementation planning discussions for an idea)
+export const stepPlanningChats = pgTable("step_planning_chat", {
+	id: serial("id").primaryKey(),
+	message: text("message").notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	ideaId: integer("idea_id")
+		.notNull()
+		.references(() => ideas.id, { onDelete: "cascade" }),
+	userId: integer("user_id")
+		.notNull()
+		.references(() => users.id, { onDelete: "cascade" }),
+})
+
+// StepSectionChat table (for discussions about specific sections)
+export const stepSectionChats = pgTable("step_section_chat", {
+	id: serial("id").primaryKey(),
+	message: text("message").notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	sectionId: integer("section_id")
+		.notNull()
+		.references(() => stepSections.id, { onDelete: "cascade" }),
 })
 
 // Pitch table
@@ -208,6 +268,7 @@ export const ideasRelations = relations(ideas, ({ one, many }) => ({
 		references: [projects.id],
 	}),
 	chats: many(ideaChats),
+	stepSections: many(stepSections),
 }))
 
 export const ideaChatsRelations = relations(ideaChats, ({ one }) => ({
@@ -256,5 +317,28 @@ export const pitchDialogsRelations = relations(pitchDialogs, ({ one }) => ({
 	user: one(users, {
 		fields: [pitchDialogs.userId],
 		references: [users.id],
+	}),
+}))
+
+export const stepSectionsRelations = relations(stepSections, ({ one, many }) => ({
+	idea: one(ideas, {
+		fields: [stepSections.ideaId],
+		references: [ideas.id],
+	}),
+	todos: many(stepTodos),
+	chats: many(stepSectionChats),
+}))
+
+export const stepSectionChatsRelations = relations(stepSectionChats, ({ one }) => ({
+	section: one(stepSections, {
+		fields: [stepSectionChats.sectionId],
+		references: [stepSections.id],
+	}),
+}))
+
+export const stepTodosRelations = relations(stepTodos, ({ one }) => ({
+	section: one(stepSections, {
+		fields: [stepTodos.sectionId],
+		references: [stepSections.id],
 	}),
 }))
