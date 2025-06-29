@@ -72,7 +72,7 @@ export async function GET(request: Request): Promise<Response> {
 		const session = await createSession(sessionToken, existingUser[0].id)
 		await setSessionTokenCookie(sessionToken, session.expiresAt)
 
-		console.log("Session created and cookie set. Redirecting to:", redirectTo)
+		console.log("Session created and cookie set. Redirecting to /project")
 
 		cookieStore.delete("github_oauth_redirect")
 		cookieStore.delete("github_oauth_state")
@@ -80,7 +80,7 @@ export async function GET(request: Request): Promise<Response> {
 		return new Response(null, {
 			status: 302,
 			headers: {
-				Location: redirectTo,
+				Location: "/project",
 			},
 		})
 	}
@@ -92,7 +92,7 @@ export async function GET(request: Request): Promise<Response> {
 	const session = await createSession(sessionToken, user.id)
 	await setSessionTokenCookie(sessionToken, session.expiresAt)
 
-	console.log("Session created and cookie set. Redirecting to:", redirectTo)
+	console.log("Session created and cookie set. Redirecting to /onboarding")
 
 	cookieStore.delete("github_oauth_redirect")
 	cookieStore.delete("github_oauth_state")
@@ -100,7 +100,7 @@ export async function GET(request: Request): Promise<Response> {
 	return new Response(null, {
 		status: 302,
 		headers: {
-			Location: redirectTo,
+			Location: "/onboarding",
 		},
 	})
 }

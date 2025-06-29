@@ -167,6 +167,15 @@ export function StepsChat({ projectId, ideaId, idea }: StepsChatProps) {
 		const step = steps.find(s => s.id === stepId)
 		if (!step) return
 
+		const newStepStatus = !step.isDone
+
+		// Optimistic update - update UI immediately
+		setSteps(prev =>
+			prev.map(s =>
+				s.id === stepId ? { ...s, isDone: newStepStatus } : s
+			)
+		)
+
 		try {
 			const response = await fetch(`/api/steps/${stepId}`, {
 				method: "PATCH",
@@ -174,18 +183,62 @@ export function StepsChat({ projectId, ideaId, idea }: StepsChatProps) {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
-					isDone: !step.isDone,
+					isDone: newStepStatus,
 				}),
 			})
+			
 			if (response.ok) {
+				// After updating the step, check if we need to update section completion
+				// Get all sections for this idea and update their completion based on step status
+				const sectionsResponse = await fetch(`/api/step-sections?ideaId=${ideaId}`)
+				if (sectionsResponse.ok) {
+					const sectionsResult = await sectionsResponse.json()
+					if (sectionsResult.success && sectionsResult.data.length > 0) {
+						// Calculate if all steps are completed
+						const updatedSteps = steps.map(s =>
+							s.id === stepId ? { ...s, isDone: newStepStatus } : s
+						)
+						const allStepsCompleted = updatedSteps.length > 0 && updatedSteps.every(s => s.isDone)
+						const anyStepIncomplete = updatedSteps.some(s => !s.isDone)
+
+						// Update all sections based on step completion
+						const sectionUpdatePromises = sectionsResult.data.map((section: { id: number; isCompleted: boolean }) => {
+							// If all steps are done, mark section as complete
+							// If any step is incomplete and section was complete, mark section as incomplete
+							const shouldBeCompleted = allStepsCompleted
+							const shouldBeIncomplete = anyStepIncomplete && section.isCompleted
+
+							if (section.isCompleted !== shouldBeCompleted || shouldBeIncomplete) {
+								return fetch(`/api/step-sections/${section.id}`, {
+									method: "PATCH",
+									headers: { "Content-Type": "application/json" },
+									body: JSON.stringify({ isCompleted: shouldBeCompleted }),
+								})
+							}
+							return Promise.resolve({ ok: true })
+						})
+
+						await Promise.allSettled(sectionUpdatePromises)
+					}
+				}
+			} else {
+				// Rollback on error
 				setSteps(prev =>
 					prev.map(s =>
-						s.id === stepId ? { ...s, isDone: !s.isDone } : s
+						s.id === stepId ? { ...s, isDone: step.isDone } : s
 					)
 				)
+				toast.error("Failed to update step")
 			}
 		} catch (error) {
+			// Rollback on error
+			setSteps(prev =>
+				prev.map(s =>
+					s.id === stepId ? { ...s, isDone: step.isDone } : s
+				)
+			)
 			console.error("Error updating step:", error)
+			toast.error("Failed to update step")
 		}
 	}
 

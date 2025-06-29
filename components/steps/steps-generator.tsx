@@ -189,29 +189,77 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 		const section = sections.find(s => s.id === sectionId)
 		if (!section) return
 
+		const newCompletionStatus = !section.isCompleted
+
 		// Optimistic update - update UI immediately
 		setSections(prev => prev.map(s => 
-			s.id === sectionId ? { ...s, isCompleted: !s.isCompleted } : s
+			s.id === sectionId 
+				? { 
+					...s, 
+					isCompleted: newCompletionStatus,
+					// Also update all todos in this section
+					todos: s.todos.map(todo => ({ ...todo, isCompleted: newCompletionStatus }))
+				} 
+				: s
 		))
 
 		try {
-			const response = await fetch(`/api/step-sections/${sectionId}`, {
+			// Update section completion status
+			const sectionResponse = await fetch(`/api/step-sections/${sectionId}`, {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ isCompleted: !section.isCompleted }),
+				body: JSON.stringify({ isCompleted: newCompletionStatus }),
 			})
 
-			if (!response.ok) {
-				// Rollback on error
-				setSections(prev => prev.map(s => 
-					s.id === sectionId ? { ...s, isCompleted: section.isCompleted } : s
-				))
-				toast.error("Failed to update section")
+			if (!sectionResponse.ok) {
+				throw new Error("Failed to update section")
 			}
+
+			// Update all todos in this section
+			const todoUpdatePromises = section.todos.map(todo => 
+				fetch(`/api/step-todos/${todo.id}`, {
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ isCompleted: newCompletionStatus }),
+				})
+			)
+
+			// Also update any related individual steps for this idea
+			// We'll mark all steps for the idea as completed/incomplete when any section changes
+			const stepsResponse = await fetch(`/api/steps?ideaId=${ideaId}`)
+			if (stepsResponse.ok) {
+				const stepsResult = await stepsResponse.json()
+				if (stepsResult.success && stepsResult.data.length > 0) {
+					const stepUpdatePromises = stepsResult.data.map((step: { id: number }) => 
+						fetch(`/api/steps/${step.id}`, {
+							method: "PATCH",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({ isDone: newCompletionStatus }),
+						})
+					)
+					await Promise.allSettled(stepUpdatePromises)
+				}
+			}
+
+			const todoResults = await Promise.allSettled(todoUpdatePromises)
+			
+			// Check if any todo updates failed
+			const failedUpdates = todoResults.filter(result => result.status === 'rejected')
+			if (failedUpdates.length > 0) {
+				console.warn(`${failedUpdates.length} todo updates failed`)
+				toast.error("Some tasks could not be updated")
+			}
+
 		} catch (error) {
 			// Rollback on error
 			setSections(prev => prev.map(s => 
-				s.id === sectionId ? { ...s, isCompleted: section.isCompleted } : s
+				s.id === sectionId 
+					? { 
+						...s, 
+						isCompleted: section.isCompleted,
+						todos: section.todos // Restore original todos
+					} 
+					: s
 			))
 			console.error("Error updating section:", error)
 			toast.error("Failed to update section")
@@ -221,37 +269,60 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 	const toggleTodoCompletion = async (todoId: number, sectionId: number) => {
 		const section = sections.find(s => s.id === sectionId)
 		const todo = section?.todos.find(t => t.id === todoId)
-		if (!todo) return
+		if (!todo || !section) return
+
+		const newTodoStatus = !todo.isCompleted
+		
+		// Calculate what the section status should be after this todo change
+		const updatedTodos = section.todos.map(t => 
+			t.id === todoId ? { ...t, isCompleted: newTodoStatus } : t
+		)
+		const allTodosCompleted = updatedTodos.length > 0 && updatedTodos.every(t => t.isCompleted)
+		const shouldSectionBeCompleted = allTodosCompleted
+		
+		// If section is currently completed and we're unchecking a todo, section should become incomplete
+		const newSectionStatus = section.isCompleted && !newTodoStatus ? false : shouldSectionBeCompleted
 
 		// Optimistic update - update UI immediately
 		setSections(prev => prev.map(section => ({
 			...section,
+			isCompleted: section.id === sectionId ? newSectionStatus : section.isCompleted,
 			todos: section.todos.map(t => 
-				t.id === todoId ? { ...t, isCompleted: !t.isCompleted } : t
+				t.id === todoId ? { ...t, isCompleted: newTodoStatus } : t
 			)
 		})))
 
 		try {
-			const response = await fetch(`/api/step-todos/${todoId}`, {
+			// Update the todo
+			const todoResponse = await fetch(`/api/step-todos/${todoId}`, {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ isCompleted: !todo.isCompleted }),
+				body: JSON.stringify({ isCompleted: newTodoStatus }),
 			})
 
-			if (!response.ok) {
-				// Rollback on error
-				setSections(prev => prev.map(section => ({
-					...section,
-					todos: section.todos.map(t => 
-						t.id === todoId ? { ...t, isCompleted: todo.isCompleted } : t
-					)
-				})))
-				toast.error("Failed to update task")
+			if (!todoResponse.ok) {
+				throw new Error("Failed to update todo")
 			}
+
+			// Update section completion if it changed
+			if (newSectionStatus !== section.isCompleted) {
+				const sectionResponse = await fetch(`/api/step-sections/${sectionId}`, {
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ isCompleted: newSectionStatus }),
+				})
+
+				if (!sectionResponse.ok) {
+					console.warn("Failed to update section completion status")
+					// Don't throw error here, todo update was successful
+				}
+			}
+
 		} catch (error) {
 			// Rollback on error
 			setSections(prev => prev.map(section => ({
 				...section,
+				isCompleted: section.id === sectionId ? section.isCompleted : section.isCompleted,
 				todos: section.todos.map(t => 
 					t.id === todoId ? { ...t, isCompleted: todo.isCompleted } : t
 				)
