@@ -102,7 +102,6 @@ export function IdeaChatSimple({
 			window.dispatchEvent(new CustomEvent("sidebar-refresh"))
 		},
 	}
-
 	return (
 		<div className="flex flex-col bg-background">
 			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sticky top-0 z-20 p-6 border-b bg-background gap-4">
