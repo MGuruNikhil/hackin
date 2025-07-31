@@ -340,17 +340,15 @@ export function IdeaChatInterface({
 											Tech Stack
 										</p>
 										<div className="flex gap-1 flex-wrap">
-											{parseTechStack(selectedIdea.content).map(
-												(tech, index) => (
-													<Badge
-														key={index}
-														variant="secondary"
-														className="text-xs"
-													>
-														{tech.trim()}
-													</Badge>
-												),
-											)}
+											{parseTechStack(selectedIdea.content).map(tech => (
+												<Badge
+													key={tech.trim()}
+													variant="secondary"
+													className="text-xs"
+												>
+													{tech.trim()}
+												</Badge>
+											))}
 										</div>
 									</div>
 								)}
@@ -381,7 +379,7 @@ export function IdeaChatInterface({
 							<div className="space-y-4 max-w-4xl">
 								{messages.map((message, index) => (
 									<div
-										key={index}
+										key={`${message.role}-${index}-${message.content?.slice(0, 50)}`}
 										className={`flex ${
 											message.role === "user" ? "justify-end" : "justify-start"
 										}`}

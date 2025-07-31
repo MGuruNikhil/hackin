@@ -26,7 +26,11 @@ export default async function SectionPage({ params }: PageProps) {
 		return notFound()
 	}
 
-	if (Number.isNaN(projectId) || Number.isNaN(selectedIdeaId) || Number.isNaN(selectedSectionId)) {
+	if (
+		Number.isNaN(projectId) ||
+		Number.isNaN(selectedIdeaId) ||
+		Number.isNaN(selectedSectionId)
+	) {
 		return notFound()
 	}
 
@@ -54,11 +58,11 @@ export default async function SectionPage({ params }: PageProps) {
 
 	return (
 		<div className="max-w-5xl mx-auto p-6 space-y-8">
-			<SectionChat 
-				projectId={projectId} 
-				ideaId={ideaId} 
+			<SectionChat
+				projectId={projectId}
+				ideaId={ideaId}
 				sectionId={sectionId}
-				idea={idea[0]} 
+				idea={idea[0]}
 				section={section[0]}
 			/>
 		</div>

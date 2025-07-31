@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
 
 		// Get todos for each section
 		const sectionsWithTodos = await Promise.all(
-			sections.map(async (section) => {
+			sections.map(async section => {
 				const todos = await db
 					.select({
 						id: stepTodos.id,
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
 					...section,
 					todos,
 				}
-			})
+			}),
 		)
 
 		return NextResponse.json({
@@ -98,9 +98,10 @@ export async function POST(request: NextRequest) {
 			.orderBy(desc(stepSections.order))
 			.limit(1)
 
-		const nextOrder = lastSection.length > 0 && lastSection[0].order !== null 
-			? lastSection[0].order + 1 
-			: 1
+		const nextOrder =
+			lastSection.length > 0 && lastSection[0].order !== null
+				? lastSection[0].order + 1
+				: 1
 
 		// Create the new section
 		const [newSection] = await db

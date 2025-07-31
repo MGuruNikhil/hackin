@@ -37,6 +37,7 @@ export default function UserAvatar() {
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<button
+					type="button"
 					className="focus:outline-none rounded-full"
 					suppressHydrationWarning
 				>

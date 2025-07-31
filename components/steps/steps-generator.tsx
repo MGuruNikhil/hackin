@@ -57,7 +57,11 @@ type StepsGeneratorProps = {
 	idea: Idea
 }
 
-export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps) {
+export function StepsGenerator({
+	projectId,
+	ideaId,
+	idea,
+}: StepsGeneratorProps) {
 	const [sections, setSections] = useState<Section[]>([])
 	const [loading, setLoading] = useState(false)
 	const [generating, setGenerating] = useState(false)
@@ -103,14 +107,15 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 
 			const result = await response.json()
 
-		if (result.success) {
-			setSections(result.sections)
-			toast.success("Generated implementation plan!")
-			// Trigger sidebar refresh
-			window.dispatchEvent(new CustomEvent("sidebar-refresh"))
-		} else {
-			toast.error(result.error || "Failed to generate implementation plan")
-		}		} catch (error) {
+			if (result.success) {
+				setSections(result.sections)
+				toast.success("Generated implementation plan!")
+				// Trigger sidebar refresh
+				window.dispatchEvent(new CustomEvent("sidebar-refresh"))
+			} else {
+				toast.error(result.error || "Failed to generate implementation plan")
+			}
+		} catch (error) {
 			console.error("Error generating sections:", error)
 			toast.error("Failed to generate implementation plan")
 		} finally {
@@ -134,17 +139,18 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 
 			const result = await response.json()
 
-		if (result.success) {
-			setSections(prev => [...prev, result.data])
-			setNewSectionTitle("")
-			setNewSectionDescription("")
-			setShowAddSection(false)
-			toast.success("Section added!")
-			// Trigger sidebar refresh
-			window.dispatchEvent(new CustomEvent("sidebar-refresh"))
-		} else {
-			toast.error("Failed to add section")
-		}		} catch (error) {
+			if (result.success) {
+				setSections(prev => [...prev, result.data])
+				setNewSectionTitle("")
+				setNewSectionDescription("")
+				setShowAddSection(false)
+				toast.success("Section added!")
+				// Trigger sidebar refresh
+				window.dispatchEvent(new CustomEvent("sidebar-refresh"))
+			} else {
+				toast.error("Failed to add section")
+			}
+		} catch (error) {
 			console.error("Error adding section:", error)
 			toast.error("Failed to add section")
 		}
@@ -167,11 +173,13 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 			const result = await response.json()
 
 			if (result.success) {
-				setSections(prev => prev.map(section => 
-					section.id === sectionId 
-						? { ...section, todos: [...section.todos, result.data] }
-						: section
-				))
+				setSections(prev =>
+					prev.map(section =>
+						section.id === sectionId
+							? { ...section, todos: [...section.todos, result.data] }
+							: section,
+					),
+				)
 				setNewTodoTitle("")
 				setNewTodoDescription("")
 				setShowAddTodo(null)
@@ -192,16 +200,21 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 		const newCompletionStatus = !section.isCompleted
 
 		// Optimistic update - update UI immediately
-		setSections(prev => prev.map(s => 
-			s.id === sectionId 
-				? { 
-					...s, 
-					isCompleted: newCompletionStatus,
-					// Also update all todos in this section
-					todos: s.todos.map(todo => ({ ...todo, isCompleted: newCompletionStatus }))
-				} 
-				: s
-		))
+		setSections(prev =>
+			prev.map(s =>
+				s.id === sectionId
+					? {
+							...s,
+							isCompleted: newCompletionStatus,
+							// Also update all todos in this section
+							todos: s.todos.map(todo => ({
+								...todo,
+								isCompleted: newCompletionStatus,
+							})),
+						}
+					: s,
+			),
+		)
 
 		try {
 			// Update section completion status
@@ -216,12 +229,12 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 			}
 
 			// Update all todos in this section
-			const todoUpdatePromises = section.todos.map(todo => 
+			const todoUpdatePromises = section.todos.map(todo =>
 				fetch(`/api/step-todos/${todo.id}`, {
 					method: "PATCH",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({ isCompleted: newCompletionStatus }),
-				})
+				}),
 			)
 
 			// Also update any related individual steps for this idea
@@ -230,37 +243,41 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 			if (stepsResponse.ok) {
 				const stepsResult = await stepsResponse.json()
 				if (stepsResult.success && stepsResult.data.length > 0) {
-					const stepUpdatePromises = stepsResult.data.map((step: { id: number }) => 
-						fetch(`/api/steps/${step.id}`, {
-							method: "PATCH",
-							headers: { "Content-Type": "application/json" },
-							body: JSON.stringify({ isDone: newCompletionStatus }),
-						})
+					const stepUpdatePromises = stepsResult.data.map(
+						(step: { id: number }) =>
+							fetch(`/api/steps/${step.id}`, {
+								method: "PATCH",
+								headers: { "Content-Type": "application/json" },
+								body: JSON.stringify({ isDone: newCompletionStatus }),
+							}),
 					)
 					await Promise.allSettled(stepUpdatePromises)
 				}
 			}
 
 			const todoResults = await Promise.allSettled(todoUpdatePromises)
-			
+
 			// Check if any todo updates failed
-			const failedUpdates = todoResults.filter(result => result.status === 'rejected')
+			const failedUpdates = todoResults.filter(
+				result => result.status === "rejected",
+			)
 			if (failedUpdates.length > 0) {
 				console.warn(`${failedUpdates.length} todo updates failed`)
 				toast.error("Some tasks could not be updated")
 			}
-
 		} catch (error) {
 			// Rollback on error
-			setSections(prev => prev.map(s => 
-				s.id === sectionId 
-					? { 
-						...s, 
-						isCompleted: section.isCompleted,
-						todos: section.todos // Restore original todos
-					} 
-					: s
-			))
+			setSections(prev =>
+				prev.map(s =>
+					s.id === sectionId
+						? {
+								...s,
+								isCompleted: section.isCompleted,
+								todos: section.todos, // Restore original todos
+							}
+						: s,
+				),
+			)
 			console.error("Error updating section:", error)
 			toast.error("Failed to update section")
 		}
@@ -272,25 +289,30 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 		if (!todo || !section) return
 
 		const newTodoStatus = !todo.isCompleted
-		
+
 		// Calculate what the section status should be after this todo change
-		const updatedTodos = section.todos.map(t => 
-			t.id === todoId ? { ...t, isCompleted: newTodoStatus } : t
+		const updatedTodos = section.todos.map(t =>
+			t.id === todoId ? { ...t, isCompleted: newTodoStatus } : t,
 		)
-		const allTodosCompleted = updatedTodos.length > 0 && updatedTodos.every(t => t.isCompleted)
+		const allTodosCompleted =
+			updatedTodos.length > 0 && updatedTodos.every(t => t.isCompleted)
 		const shouldSectionBeCompleted = allTodosCompleted
-		
+
 		// If section is currently completed and we're unchecking a todo, section should become incomplete
-		const newSectionStatus = section.isCompleted && !newTodoStatus ? false : shouldSectionBeCompleted
+		const newSectionStatus =
+			section.isCompleted && !newTodoStatus ? false : shouldSectionBeCompleted
 
 		// Optimistic update - update UI immediately
-		setSections(prev => prev.map(section => ({
-			...section,
-			isCompleted: section.id === sectionId ? newSectionStatus : section.isCompleted,
-			todos: section.todos.map(t => 
-				t.id === todoId ? { ...t, isCompleted: newTodoStatus } : t
-			)
-		})))
+		setSections(prev =>
+			prev.map(section => ({
+				...section,
+				isCompleted:
+					section.id === sectionId ? newSectionStatus : section.isCompleted,
+				todos: section.todos.map(t =>
+					t.id === todoId ? { ...t, isCompleted: newTodoStatus } : t,
+				),
+			})),
+		)
 
 		try {
 			// Update the todo
@@ -317,16 +339,20 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 					// Don't throw error here, todo update was successful
 				}
 			}
-
 		} catch (error) {
 			// Rollback on error
-			setSections(prev => prev.map(section => ({
-				...section,
-				isCompleted: section.id === sectionId ? section.isCompleted : section.isCompleted,
-				todos: section.todos.map(t => 
-					t.id === todoId ? { ...t, isCompleted: todo.isCompleted } : t
-				)
-			})))
+			setSections(prev =>
+				prev.map(section => ({
+					...section,
+					isCompleted:
+						section.id === sectionId
+							? section.isCompleted
+							: section.isCompleted,
+					todos: section.todos.map(t =>
+						t.id === todoId ? { ...t, isCompleted: todo.isCompleted } : t,
+					),
+				})),
+			)
 			console.error("Error updating todo:", error)
 			toast.error("Failed to update task")
 		}
@@ -338,12 +364,13 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 				method: "DELETE",
 			})
 
-		if (response.ok) {
-			setSections(prev => prev.filter(s => s.id !== sectionId))
-			toast.success("Section deleted")
-			// Trigger sidebar refresh
-			window.dispatchEvent(new CustomEvent("sidebar-refresh"))
-		}		} catch (error) {
+			if (response.ok) {
+				setSections(prev => prev.filter(s => s.id !== sectionId))
+				toast.success("Section deleted")
+				// Trigger sidebar refresh
+				window.dispatchEvent(new CustomEvent("sidebar-refresh"))
+			}
+		} catch (error) {
 			console.error("Error deleting section:", error)
 			toast.error("Failed to delete section")
 		}
@@ -356,11 +383,16 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 			})
 
 			if (response.ok) {
-				setSections(prev => prev.map(section => 
-					section.id === sectionId 
-						? { ...section, todos: section.todos.filter(t => t.id !== todoId) }
-						: section
-				))
+				setSections(prev =>
+					prev.map(section =>
+						section.id === sectionId
+							? {
+									...section,
+									todos: section.todos.filter(t => t.id !== todoId),
+								}
+							: section,
+					),
+				)
 				toast.success("Todo deleted")
 			}
 		} catch (error) {
@@ -370,22 +402,28 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 	}
 
 	// Calculate progress
-	const totalTodos = sections.reduce((acc, section) => acc + section.todos.length, 0)
-	const completedTodos = sections.reduce((acc, section) => 
-		acc + section.todos.filter(todo => todo.isCompleted).length, 0
+	const totalTodos = sections.reduce(
+		(acc, section) => acc + section.todos.length,
+		0,
 	)
-	const progressPercentage = totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0
+	const completedTodos = sections.reduce(
+		(acc, section) =>
+			acc + section.todos.filter(todo => todo.isCompleted).length,
+		0,
+	)
+	const progressPercentage =
+		totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0
 
 	if (loading) {
 		return (
 			<div className="w-full space-y-6">
 				<div className="space-y-4">
-					<div className="h-8 bg-muted rounded w-64 animate-pulse"></div>
-					<div className="h-4 bg-muted rounded w-96 animate-pulse"></div>
+					<div className="h-8 bg-muted rounded w-64 animate-pulse" />
+					<div className="h-4 bg-muted rounded w-96 animate-pulse" />
 				</div>
 				<div className="space-y-4">
 					{[1, 2, 3].map(i => (
-						<div key={i} className="h-24 bg-muted rounded-lg animate-pulse"></div>
+						<div key={i} className="h-24 bg-muted rounded-lg animate-pulse" />
 					))}
 				</div>
 			</div>
@@ -402,19 +440,20 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 							<div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
 								<Target className="w-5 h-5 text-muted-foreground" />
 							</div>
-							<h1 className="text-2xl font-semibold text-foreground">Implementation Plan</h1>
+							<h1 className="text-2xl font-semibold text-foreground">
+								Implementation Plan
+							</h1>
 						</div>
 						<div className="space-y-1">
-							<h2 className="text-lg font-medium text-foreground">{idea.title}</h2>
+							<h2 className="text-lg font-medium text-foreground">
+								{idea.title}
+							</h2>
 							<p className="text-muted-foreground">{idea.description}</p>
 						</div>
 					</div>
-					
+
 					{sections.length === 0 && (
-						<Button 
-							onClick={generateSections} 
-							disabled={generating}
-						>
+						<Button onClick={generateSections} disabled={generating}>
 							{generating ? (
 								<>
 									<Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -439,7 +478,8 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 									{completedTodos} of {totalTodos} tasks completed
 								</div>
 								<div className="text-xs text-muted-foreground">
-									{sections.filter(s => s.isCompleted).length} of {sections.length} sections done
+									{sections.filter(s => s.isCompleted).length} of{" "}
+									{sections.length} sections done
 								</div>
 							</div>
 							<div className="text-lg font-bold">
@@ -447,7 +487,7 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 							</div>
 						</div>
 						<div className="w-full bg-muted rounded-full h-2">
-							<div 
+							<div
 								className="bg-primary h-2 rounded-full transition-all duration-300"
 								style={{ width: `${progressPercentage}%` }}
 							/>
@@ -462,9 +502,12 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 					<div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center mx-auto mb-4">
 						<Target className="w-8 h-8 text-muted-foreground" />
 					</div>
-					<h3 className="text-lg font-medium text-foreground mb-2">No implementation plan yet</h3>
+					<h3 className="text-lg font-medium text-foreground mb-2">
+						No implementation plan yet
+					</h3>
 					<p className="text-muted-foreground mb-6">
-						Generate an AI-powered implementation plan or create sections manually
+						Generate an AI-powered implementation plan or create sections
+						manually
 					</p>
 				</div>
 			) : (
@@ -472,7 +515,9 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 					<div className="flex items-center justify-between">
 						<h3 className="text-lg font-semibold text-foreground">
 							Implementation Sections
-							<span className="ml-2 text-sm font-normal text-muted-foreground">({sections.length})</span>
+							<span className="ml-2 text-sm font-normal text-muted-foreground">
+								({sections.length})
+							</span>
 						</h3>
 						<Button
 							variant="outline"
@@ -488,34 +533,44 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 						<div className="bg-muted/50 rounded p-4 border border-dashed">
 							<div className="space-y-3">
 								<div>
-									<Label htmlFor="section-title" className="text-sm font-medium">Section Title</Label>
+									<Label
+										htmlFor="section-title"
+										className="text-sm font-medium"
+									>
+										Section Title
+									</Label>
 									<Input
 										id="section-title"
 										value={newSectionTitle}
-										onChange={(e) => setNewSectionTitle(e.target.value)}
+										onChange={e => setNewSectionTitle(e.target.value)}
 										placeholder="e.g., Frontend Development"
 										className="mt-1"
 									/>
 								</div>
 								<div>
-									<Label htmlFor="section-description" className="text-sm font-medium">Description (Optional)</Label>
+									<Label
+										htmlFor="section-description"
+										className="text-sm font-medium"
+									>
+										Description (Optional)
+									</Label>
 									<Textarea
 										id="section-description"
 										value={newSectionDescription}
-										onChange={(e) => setNewSectionDescription(e.target.value)}
+										onChange={e => setNewSectionDescription(e.target.value)}
 										placeholder="Brief description of what this section covers"
 										rows={2}
 										className="mt-1"
 									/>
 								</div>
 								<div className="flex gap-2">
-									<Button 
-										onClick={addSection} 
+									<Button
+										onClick={addSection}
 										disabled={!newSectionTitle.trim()}
 									>
 										Add Section
 									</Button>
-									<Button 
+									<Button
 										variant="ghost"
 										onClick={() => {
 											setShowAddSection(false)
@@ -532,152 +587,178 @@ export function StepsGenerator({ projectId, ideaId, idea }: StepsGeneratorProps)
 
 					{/* Sections List */}
 					<Accordion type="multiple" className="space-y-2">
-						{sections.map((section) => {
-							const completedTodosInSection = section.todos.filter(t => t.isCompleted).length
+						{sections.map(section => {
+							const completedTodosInSection = section.todos.filter(
+								t => t.isCompleted,
+							).length
 
 							return (
-								<AccordionItem 
-									key={section.id} 
+								<AccordionItem
+									key={section.id}
 									value={section.id.toString()}
 									className="border rounded-lg"
 								>
-								<AccordionTrigger className="px-4 py-3 hover:no-underline">
-									<div className="flex items-center justify-between w-full">
-										<div className="flex items-center gap-3">
-											<button
-												onClick={(e) => {
-													e.stopPropagation()
-													toggleSectionCompletion(section.id)
-												}}
-												className="hover:scale-105 transition-transform"
-											>
-												{section.isCompleted ? (
-													<CheckCircle2 className="w-4 h-4 text-green-600" />
-												) : (
-													<Circle className="w-4 h-4 text-muted-foreground" />
-												)}
-											</button>
-											
-											<div className="text-left">
-												<Link 
-													href={`/project/${projectId}/idea/${ideaId}/steps/${section.id}`}
-													className="text-sm font-medium text-foreground hover:text-primary"
-													onClick={(e) => e.stopPropagation()}
+									<AccordionTrigger className="px-4 py-3 hover:no-underline">
+										<div className="flex items-center justify-between w-full">
+											<div className="flex items-center gap-3">
+												<div
+													onClick={e => {
+														e.stopPropagation()
+														toggleSectionCompletion(section.id)
+													}}
+													onKeyDown={e => {
+														if (e.key === "Enter" || e.key === " ") {
+															e.stopPropagation()
+															toggleSectionCompletion(section.id)
+														}
+													}}
+													role="button"
+													tabIndex={0}
+													className="hover:scale-105 transition-transform cursor-pointer"
 												>
-													{section.title}
-												</Link>
-											</div>
-										</div>
-										
-										<div className="flex items-center gap-2 text-xs text-muted-foreground">
-											<span>{completedTodosInSection}/{section.todos.length}</span>
-											<Button
-												variant="ghost"
-												size="sm"
-												onClick={(e) => {
-													e.stopPropagation()
-													deleteSection(section.id)
-												}}
-												className="h-6 w-6 p-0 hover:text-destructive"
-											>
-												<Trash2 className="w-3 h-3" />
-											</Button>
-										</div>
-									</div>
-								</AccordionTrigger>									
-								<AccordionContent className="px-4 pb-4">
-									<div className="space-y-2">
-										{section.todos.map((todo) => (
-											<div
-												key={todo.id}
-												className="flex items-start gap-3 p-3 rounded border bg-muted/30"
-											>
-												<button
-													onClick={() => toggleTodoCompletion(todo.id, section.id)}
-													className="mt-0.5"
-												>
-													{todo.isCompleted ? (
+													{section.isCompleted ? (
 														<CheckCircle2 className="w-4 h-4 text-green-600" />
 													) : (
 														<Circle className="w-4 h-4 text-muted-foreground" />
 													)}
-												</button>
-												
-												<div className="flex-1 min-w-0">
-													<p className={`text-sm ${
-														todo.isCompleted 
-															? "line-through text-muted-foreground" 
-															: "text-foreground"
-													}`}>
-														{todo.title}
-													</p>
-													{todo.description && (
-														<p className="text-xs text-muted-foreground mt-1">
-															{todo.description}
-														</p>
-													)}
 												</div>
 
-												<Button
-													variant="ghost"
-													size="sm"
-													onClick={() => deleteTodo(todo.id, section.id)}
-													className="h-6 w-6 p-0 opacity-50 hover:opacity-100 hover:text-destructive"
-												>
-													<Trash2 className="w-3 h-3" />
-												</Button>
-											</div>
-										))}
-										{/* Add Todo */}
-										{showAddTodo === section.id ? (
-											<div className="bg-muted/50 rounded p-3 border border-dashed">
-												<div className="space-y-3">
-													<Input
-														value={newTodoTitle}
-														onChange={(e) => setNewTodoTitle(e.target.value)}
-														placeholder="Task title..."
-														className="text-sm"
-													/>
-													<Textarea
-														value={newTodoDescription}
-														onChange={(e) => setNewTodoDescription(e.target.value)}
-														placeholder="Description (optional)..."
-														className="text-sm"
-														rows={2}
-													/>
-													<div className="flex gap-2">
-														<Button 
-															onClick={() => addTodo(section.id)} 
-															disabled={!newTodoTitle.trim()}
-															size="sm"
-														>
-															Add
-														</Button>
-														<Button 
-															variant="ghost" 
-															size="sm"
-															onClick={() => {
-																setShowAddTodo(null)
-																setNewTodoTitle("")
-																setNewTodoDescription("")
-															}}
-														>
-															Cancel
-														</Button>
-													</div>
+												<div className="text-left">
+													<Link
+														href={`/project/${projectId}/idea/${ideaId}/steps/${section.id}`}
+														className="text-sm font-medium text-foreground hover:text-primary"
+														onClick={e => e.stopPropagation()}
+													>
+														{section.title}
+													</Link>
 												</div>
 											</div>
-										) : (
-											<Button
-												variant="outline"
-												size="sm"
-												onClick={() => setShowAddTodo(section.id)}
-												className="w-full border-dashed"
-											>
-												<Plus className="w-4 h-4 mr-2" />
-												Add Task
-											</Button>
-										)}										</div>
+
+											<div className="flex items-center gap-2 text-xs text-muted-foreground">
+												<span>
+													{completedTodosInSection}/{section.todos.length}
+												</span>
+												<div
+													onClick={e => {
+														e.stopPropagation()
+														deleteSection(section.id)
+													}}
+													onKeyDown={e => {
+														if (e.key === "Enter" || e.key === " ") {
+															e.stopPropagation()
+															deleteSection(section.id)
+														}
+													}}
+													role="button"
+													tabIndex={0}
+													className="h-6 w-6 p-0 hover:text-destructive cursor-pointer rounded flex items-center justify-center transition-colors"
+												>
+													<Trash2 className="w-3 h-3" />
+												</div>
+											</div>
+										</div>
+									</AccordionTrigger>
+									<AccordionContent className="px-4 pb-4">
+										<div className="space-y-2">
+											{section.todos.map(todo => (
+												<div
+													key={todo.id}
+													className="flex items-start gap-3 p-3 rounded border bg-muted/30"
+												>
+													<button
+														type="button"
+														onClick={() =>
+															toggleTodoCompletion(todo.id, section.id)
+														}
+														className="mt-0.5"
+													>
+														{todo.isCompleted ? (
+															<CheckCircle2 className="w-4 h-4 text-green-600" />
+														) : (
+															<Circle className="w-4 h-4 text-muted-foreground" />
+														)}
+													</button>
+
+													<div className="flex-1 min-w-0">
+														<p
+															className={`text-sm ${
+																todo.isCompleted
+																	? "line-through text-muted-foreground"
+																	: "text-foreground"
+															}`}
+														>
+															{todo.title}
+														</p>
+														{todo.description && (
+															<p className="text-xs text-muted-foreground mt-1">
+																{todo.description}
+															</p>
+														)}
+													</div>
+
+													<Button
+														variant="ghost"
+														size="sm"
+														onClick={() => deleteTodo(todo.id, section.id)}
+														className="h-6 w-6 p-0 opacity-50 hover:opacity-100 hover:text-destructive"
+													>
+														<Trash2 className="w-3 h-3" />
+													</Button>
+												</div>
+											))}
+											{/* Add Todo */}
+											{showAddTodo === section.id ? (
+												<div className="bg-muted/50 rounded p-3 border border-dashed">
+													<div className="space-y-3">
+														<Input
+															value={newTodoTitle}
+															onChange={e => setNewTodoTitle(e.target.value)}
+															placeholder="Task title..."
+															className="text-sm"
+														/>
+														<Textarea
+															value={newTodoDescription}
+															onChange={e =>
+																setNewTodoDescription(e.target.value)
+															}
+															placeholder="Description (optional)..."
+															className="text-sm"
+															rows={2}
+														/>
+														<div className="flex gap-2">
+															<Button
+																onClick={() => addTodo(section.id)}
+																disabled={!newTodoTitle.trim()}
+																size="sm"
+															>
+																Add
+															</Button>
+															<Button
+																variant="ghost"
+																size="sm"
+																onClick={() => {
+																	setShowAddTodo(null)
+																	setNewTodoTitle("")
+																	setNewTodoDescription("")
+																}}
+															>
+																Cancel
+															</Button>
+														</div>
+													</div>
+												</div>
+											) : (
+												<Button
+													variant="outline"
+													size="sm"
+													onClick={() => setShowAddTodo(section.id)}
+													className="w-full border-dashed"
+												>
+													<Plus className="w-4 h-4 mr-2" />
+													Add Task
+												</Button>
+											)}{" "}
+										</div>
 									</AccordionContent>
 								</AccordionItem>
 							)

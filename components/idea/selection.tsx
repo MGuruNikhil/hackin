@@ -2,7 +2,7 @@
 
 import { Lightbulb, MessageCircle, Sparkles, X } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState, useCallback } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,21 +27,24 @@ export function IdeaSelection({ projectId }: IdeaSelectionProps) {
 	const [loading, setLoading] = useState(false)
 
 	// Load selected idea from localStorage on mount
-	const loadIdea = useCallback(async (ideaId: number) => {
-		setLoading(true)
-		try {
-			const response = await fetch(`/api/ideas/${ideaId}`)
-			if (response.ok) {
-				const idea = await response.json()
-				setSelectedIdea(idea)
-				localStorage.setItem(`selectedIdea_${projectId}`, idea.id.toString())
+	const loadIdea = useCallback(
+		async (ideaId: number) => {
+			setLoading(true)
+			try {
+				const response = await fetch(`/api/ideas/${ideaId}`)
+				if (response.ok) {
+					const idea = await response.json()
+					setSelectedIdea(idea)
+					localStorage.setItem(`selectedIdea_${projectId}`, idea.id.toString())
+				}
+			} catch (error) {
+				console.error("Failed to load idea:", error)
+			} finally {
+				setLoading(false)
 			}
-		} catch (error) {
-			console.error("Failed to load idea:", error)
-		} finally {
-			setLoading(false)
-		}
-	}, [projectId])
+		},
+		[projectId],
+	)
 
 	useEffect(() => {
 		const savedIdeaId = localStorage.getItem(`selectedIdea_${projectId}`)
@@ -155,7 +158,10 @@ export function IdeaSelection({ projectId }: IdeaSelectionProps) {
 					</CardTitle>
 					<div className="flex items-center gap-2">
 						{selectedIdea.isFinal && (
-							<Badge variant="default" className="bg-green-600 dark:bg-green-800 dark:border-green-700">
+							<Badge
+								variant="default"
+								className="bg-green-600 dark:bg-green-800 dark:border-green-700"
+							>
 								Final Idea
 							</Badge>
 						)}
@@ -184,8 +190,8 @@ export function IdeaSelection({ projectId }: IdeaSelectionProps) {
 						<div>
 							<p className="text-sm font-medium mb-2">Tech Stack:</p>
 							<div className="flex flex-wrap gap-2">
-								{techStack.map((tech, index) => (
-									<Badge key={index} variant="secondary">
+								{techStack.map(tech => (
+									<Badge key={tech} variant="secondary">
 										{tech}
 									</Badge>
 								))}

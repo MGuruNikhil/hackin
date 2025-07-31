@@ -10,11 +10,10 @@ import {
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { Markdown } from "@/components/markdown/render"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Markdown } from "@/components/markdown/render"
 import { GenericChat } from "@/components/ui/generic-chat"
-
 
 type Idea = {
 	id: number
@@ -78,7 +77,9 @@ export function IdeaChatSimple({
 			}
 		} catch (error) {
 			console.error("Error finalizing idea:", error)
-			toast.error(`Error finalizing idea: ${error instanceof Error ? error.message : 'Unknown error'}`)
+			toast.error(
+				`Error finalizing idea: ${error instanceof Error ? error.message : "Unknown error"}`,
+			)
 		}
 	}
 
@@ -95,7 +96,8 @@ export function IdeaChatSimple({
 		messagesEndpoint: `/api/ideas/${selectedIdea.id}/messages`,
 		placeholder: "Discuss this idea...",
 		emptyStateTitle: "Start discussing this idea",
-		emptyStateDescription: "Ask questions, refine details, or explore implementation possibilities",
+		emptyStateDescription:
+			"Ask questions, refine details, or explore implementation possibilities",
 		loadingText: "Loading chat history...",
 		onSuccess: () => {
 			// Trigger sidebar refresh when chat generates updates
@@ -106,18 +108,23 @@ export function IdeaChatSimple({
 	return (
 		<div className="flex flex-col bg-background">
 			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sticky top-0 z-20 p-6 border-b bg-background gap-4">
-				<div className="flex flex-col sm:flex-row sm:items-center gap-3">				<div className="flex items-center gap-3">
-					<Link href={`/project/${projectId}/idea`}>
-						<Button variant="ghost" size="sm">
-							<ArrowLeft className="h-4 w-4 mr-2" />
-							<span className="xs:inline">Back to Ideas</span>
-						</Button>
-					</Link>
-				</div>
+				<div className="flex flex-col sm:flex-row sm:items-center gap-3">
+					{" "}
+					<div className="flex items-center gap-3">
+						<Link href={`/project/${projectId}/idea`}>
+							<Button variant="ghost" size="sm">
+								<ArrowLeft className="h-4 w-4 mr-2" />
+								<span className="xs:inline">Back to Ideas</span>
+							</Button>
+						</Link>
+					</div>
 				</div>
 				<div className="flex items-center gap-2">
 					{selectedIdea.isFinal && (
-						<Badge variant="default" className="bg-green-600 dark:bg-green-800 dark:border-green-700">
+						<Badge
+							variant="default"
+							className="bg-green-600 dark:bg-green-800 dark:border-green-700"
+						>
 							<Check className="h-3 w-3 mr-1" />
 							Final Idea
 						</Badge>
@@ -136,7 +143,6 @@ export function IdeaChatSimple({
 				</div>
 			</div>
 			<div className="p-6 border-b bg-background">
-
 				<div className="space-y-4">
 					<div>
 						<h1 className="text-2xl font-bold flex items-center gap-2">
@@ -164,8 +170,8 @@ export function IdeaChatSimple({
 					<div className="flex flex-wrap gap-4">
 						{techStack.length > 0 && (
 							<div className="flex flex-wrap gap-1">
-								{techStack.map((tech, index) => (
-									<Badge key={index} variant="secondary">
+								{techStack.map(tech => (
+									<Badge key={tech} variant="secondary">
 										{tech}
 									</Badge>
 								))}
@@ -183,9 +189,7 @@ export function IdeaChatSimple({
 			{/* Chat Interface */}
 			<div className="flex-1 flex flex-col">
 				<div className="p-6 flex-1">
-					<GenericChat 
-						config={chatConfig}
-					/>
+					<GenericChat config={chatConfig} />
 				</div>
 			</div>
 		</div>

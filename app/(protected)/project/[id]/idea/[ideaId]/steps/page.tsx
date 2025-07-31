@@ -41,11 +41,7 @@ export default async function StepsPage({ params }: PageProps) {
 
 	return (
 		<div className="min-h-full p-5">
-			<StepsGenerator 
-				projectId={projectId} 
-				ideaId={ideaId} 
-				idea={idea[0]} 
-			/>
+			<StepsGenerator projectId={projectId} ideaId={ideaId} idea={idea[0]} />
 		</div>
 	)
 }

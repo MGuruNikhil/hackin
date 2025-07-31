@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 			.orderBy(steps.order)
 
 		// Transform the data to match what the component expects
-		const transformedSteps = ideaSteps.map((step) => ({
+		const transformedSteps = ideaSteps.map(step => ({
 			id: step.id.toString(),
 			title: step.content, // Use content as title for now
 			name: step.content,
@@ -95,9 +95,10 @@ export async function POST(request: NextRequest) {
 			.orderBy(desc(steps.order))
 			.limit(1)
 
-		const nextOrder = lastStep.length > 0 && lastStep[0].order !== null 
-			? lastStep[0].order + 1 
-			: 1
+		const nextOrder =
+			lastStep.length > 0 && lastStep[0].order !== null
+				? lastStep[0].order + 1
+				: 1
 
 		// Create the new step
 		const [newStep] = await db

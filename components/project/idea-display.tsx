@@ -173,17 +173,15 @@ export function IdeaDisplay({ projectId }: IdeaDisplayProps) {
 											Tech Stack
 										</p>
 										<div className="flex gap-2 flex-wrap">
-											{parseTechStack(selectedIdea.content).map(
-												(tech, index) => (
-													<Badge
-														key={index}
-														variant="secondary"
-														className="text-xs"
-													>
-														{tech.trim()}
-													</Badge>
-												),
-											)}
+											{parseTechStack(selectedIdea.content).map(tech => (
+												<Badge
+													key={tech.trim()}
+													variant="secondary"
+													className="text-xs"
+												>
+													{tech.trim()}
+												</Badge>
+											))}
 										</div>
 									</div>
 								</>

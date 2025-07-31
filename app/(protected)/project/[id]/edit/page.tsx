@@ -36,14 +36,12 @@ export default async function EditProjectPage({
 		tools: project.suggestedTech || "",
 		judging_criteria: project.judgingCriteria || "",
 		additional_data: project.additionalData || "",
-		submision_time: project.submissionTime ? new Date(project.submissionTime) : new Date(),
+		submision_time: project.submissionTime
+			? new Date(project.submissionTime)
+			: new Date(),
 	}
 
 	return (
-		<ProjectForm
-			mode="edit"
-			projectId={projectId}
-			initialData={initialData}
-		/>
+		<ProjectForm mode="edit" projectId={projectId} initialData={initialData} />
 	)
 }

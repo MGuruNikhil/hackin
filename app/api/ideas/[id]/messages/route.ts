@@ -49,7 +49,7 @@ export async function GET(
 			.orderBy(asc(ideaChats.createdAt))
 
 		// Transform to the format expected by the chat component
-		const messages = chatMessages.map((chat) => ({
+		const messages = chatMessages.map(chat => ({
 			id: chat.id.toString(),
 			content: chat.message,
 			role: chat.role as "user" | "assistant",

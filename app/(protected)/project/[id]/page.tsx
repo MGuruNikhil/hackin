@@ -163,9 +163,7 @@ export default async function ProjectPage({
 					{isOwner && (
 						<div className="pt-4 flex justify-center gap-3">
 							<Button asChild variant="outline">
-								<Link href={`/project/${project.id}/edit`}>
-									Edit Project
-								</Link>
+								<Link href={`/project/${project.id}/edit`}>Edit Project</Link>
 							</Button>
 							<DeleteProjectButton
 								projectId={project.id}

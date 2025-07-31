@@ -1,41 +1,41 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1750863516693,
-      "tag": "0000_furry_chat",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1750966856039,
-      "tag": "0001_public_sebastian_shaw",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1751027390644,
-      "tag": "0002_marvelous_tattoo",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1751028844535,
-      "tag": "0003_loving_redwing",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1751138027470,
-      "tag": "0004_daffy_morg",
-      "breakpoints": true
-    }
-  ]
+	"version": "7",
+	"dialect": "postgresql",
+	"entries": [
+		{
+			"idx": 0,
+			"version": "7",
+			"when": 1750863516693,
+			"tag": "0000_furry_chat",
+			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "7",
+			"when": 1750966856039,
+			"tag": "0001_public_sebastian_shaw",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1751027390644,
+			"tag": "0002_marvelous_tattoo",
+			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "7",
+			"when": 1751028844535,
+			"tag": "0003_loving_redwing",
+			"breakpoints": true
+		},
+		{
+			"idx": 4,
+			"version": "7",
+			"when": 1751138027470,
+			"tag": "0004_daffy_morg",
+			"breakpoints": true
+		}
+	]
 }

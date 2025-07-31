@@ -19,10 +19,10 @@ export async function POST(request: Request) {
 			messages: [{ role: "user", content: userMessage }],
 		})
 
-		console.log(`[TEST] StreamText created, returning response`)
+		console.log("[TEST] StreamText created, returning response")
 		return result.toDataStreamResponse()
 	} catch (error) {
-		console.error(`[TEST] Error:`, error)
+		console.error("[TEST] Error:", error)
 		return new Response(`Error: ${error}`, { status: 500 })
 	}
 }

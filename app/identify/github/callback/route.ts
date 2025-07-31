@@ -53,37 +53,57 @@ export async function GET(request: Request): Promise<Response> {
 			})
 		}
 
-	let tokens: OAuth2Tokens
-	try {
-		tokens = await github.validateAuthorizationCode(code)
-	} catch (error) {
-		console.error("Error validating authorization code:", error)
-		return new Response(null, {
-			status: 400,
+		let tokens: OAuth2Tokens
+		try {
+			tokens = await github.validateAuthorizationCode(code)
+		} catch (error) {
+			console.error("Error validating authorization code:", error)
+			return new Response(null, {
+				status: 400,
+			})
+		}
+		const githubUserResponse = await fetch("https://api.github.com/user", {
+			headers: {
+				Authorization: `Bearer ${tokens.accessToken()}`,
+			},
 		})
-	}
-	const githubUserResponse = await fetch("https://api.github.com/user", {
-		headers: {
-			Authorization: `Bearer ${tokens.accessToken()}`,
-		},
-	})
-	const githubUser = await githubUserResponse.json()
-	const githubUserId = githubUser.id
-	const githubUsername = githubUser.login
+		const githubUser = await githubUserResponse.json()
+		const githubUserId = githubUser.id
+		const githubUsername = githubUser.login
 
-	const existingUser = await db
-		.select()
-		.from(users)
-		.where(eq(users.githubId, githubUserId))
-		.limit(1)
+		const existingUser = await db
+			.select()
+			.from(users)
+			.where(eq(users.githubId, githubUserId))
+			.limit(1)
 
-	if (existingUser.length > 0) {
-		console.log("Existing user found:", existingUser[0].username)
+		if (existingUser.length > 0) {
+			console.log("Existing user found:", existingUser[0].username)
+			const sessionToken = generateSessionToken()
+			const session = await createSession(sessionToken, existingUser[0].id)
+			await setSessionTokenCookie(sessionToken, session.expiresAt)
+
+			console.log("Session created and cookie set. Redirecting to /project")
+
+			cookieStore.delete("github_oauth_redirect")
+			cookieStore.delete("github_oauth_state")
+
+			return new Response(null, {
+				status: 302,
+				headers: {
+					Location: "/project",
+				},
+			})
+		}
+
+		const user = await createUser(githubUserId, githubUsername)
+		console.log("New user created:", user.username)
+
 		const sessionToken = generateSessionToken()
-		const session = await createSession(sessionToken, existingUser[0].id)
+		const session = await createSession(sessionToken, user.id)
 		await setSessionTokenCookie(sessionToken, session.expiresAt)
 
-		console.log("Session created and cookie set. Redirecting to /project")
+		console.log("Session created and cookie set. Redirecting to /onboarding")
 
 		cookieStore.delete("github_oauth_redirect")
 		cookieStore.delete("github_oauth_state")
@@ -91,34 +111,17 @@ export async function GET(request: Request): Promise<Response> {
 		return new Response(null, {
 			status: 302,
 			headers: {
-				Location: "/project",
+				Location: "/onboarding",
 			},
 		})
-	}
-
-	const user = await createUser(githubUserId, githubUsername)
-	console.log("New user created:", user.username)
-
-	const sessionToken = generateSessionToken()
-	const session = await createSession(sessionToken, user.id)
-	await setSessionTokenCookie(sessionToken, session.expiresAt)
-
-	console.log("Session created and cookie set. Redirecting to /onboarding")
-
-	cookieStore.delete("github_oauth_redirect")
-	cookieStore.delete("github_oauth_state")
-
-	return new Response(null, {
-		status: 302,
-		headers: {
-			Location: "/onboarding",
-		},
-	})
 	} catch (error) {
 		console.error("OAuth callback error:", error)
-		return new Response(`Internal server error: ${error instanceof Error ? error.message : 'Unknown error'}`, {
-			status: 500,
-		})
+		return new Response(
+			`Internal server error: ${error instanceof Error ? error.message : "Unknown error"}`,
+			{
+				status: 500,
+			},
+		)
 	}
 }
 async function createUser(githubUserId: number, githubUsername: string) {

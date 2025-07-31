@@ -6,7 +6,7 @@ import { getCurrentSession } from "@/lib/session"
 
 export async function PATCH(
 	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const { user } = await getCurrentSession()
@@ -49,14 +49,14 @@ export async function PATCH(
 		console.error("Error updating step:", error)
 		return NextResponse.json(
 			{ error: "Failed to update step" },
-			{ status: 500 }
+			{ status: 500 },
 		)
 	}
 }
 
 export async function DELETE(
 	_request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const { user } = await getCurrentSession()
@@ -90,7 +90,7 @@ export async function DELETE(
 		console.error("Error deleting step:", error)
 		return NextResponse.json(
 			{ error: "Failed to delete step" },
-			{ status: 500 }
+			{ status: 500 },
 		)
 	}
 }

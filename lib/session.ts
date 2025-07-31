@@ -30,7 +30,11 @@ export async function validateSessionToken(
 		sessionWithUser.length > 0 ? "Found" : "Not found",
 	)
 
-	if (!sessionWithUser.length || !sessionWithUser[0]?.session || !sessionWithUser[0]?.user) {
+	if (
+		!sessionWithUser.length ||
+		!sessionWithUser[0]?.session ||
+		!sessionWithUser[0]?.user
+	) {
 		console.error("Session or user not found in query result:", sessionWithUser)
 		return { session: null, user: null }
 	}

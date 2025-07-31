@@ -79,10 +79,10 @@ export async function deleteProject(projectId: number) {
 		const teamId = project.teamId
 
 		// Use a transaction to ensure proper cleanup
-		const result = await db.transaction(async (tx) => {
+		const result = await db.transaction(async tx => {
 			// Delete the project - database CASCADE constraints will handle:
 			// - ideas and their ideaChats
-			// - steps and their stepChats  
+			// - steps and their stepChats
 			// - pitches and their pitchDialogs
 			const [deletedProject] = await tx
 				.delete(projects)
@@ -475,7 +475,7 @@ export async function updateProject(
 		judgingCriteria?: string
 		additionalData?: string
 		submissionTime: Date
-	}
+	},
 ) {
 	try {
 		const { user } = await getCurrentSession()

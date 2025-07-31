@@ -1,17 +1,17 @@
 "use client"
 
 import { useChat } from "@ai-sdk/react"
-import { 
-	ArrowLeft, 
-	CheckCircle2, 
-	Circle, 
-	MessageCircle, 
-	Send, 
-	Sparkles, 
-	Target, 
-	Trash2,
+import {
+	ArrowLeft,
+	CheckCircle2,
+	Circle,
+	Loader2,
+	MessageCircle,
 	Plus,
-	Loader2 
+	Send,
+	Sparkles,
+	Target,
+	Trash2,
 } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -49,7 +49,9 @@ export function StepsChat({ projectId, ideaId, idea }: StepsChatProps) {
 	const [loading, setLoading] = useState(true)
 	const [showAddForm, setShowAddForm] = useState(false)
 	const [newStepContent, setNewStepContent] = useState("")
-	const [initialMessages, setInitialMessages] = useState<{ id: string; role: "user" | "assistant"; content: string }[]>([])
+	const [initialMessages, setInitialMessages] = useState<
+		{ id: string; role: "user" | "assistant"; content: string }[]
+	>([])
 	const [chatHistoryLoaded, setChatHistoryLoaded] = useState(false)
 
 	// Use the useChat hook for streaming AI chat
@@ -72,7 +74,7 @@ export function StepsChat({ projectId, ideaId, idea }: StepsChatProps) {
 			toast.error("Failed to generate steps")
 			console.error("Chat error:", error)
 		},
-		onFinish: (message) => {
+		onFinish: message => {
 			parseAndCreateSteps(message.content)
 		},
 	})
@@ -89,7 +91,9 @@ export function StepsChat({ projectId, ideaId, idea }: StepsChatProps) {
 				}
 
 				// Fetch chat history
-				const chatResponse = await fetch(`/api/steps/chat/history?ideaId=${ideaId}`)
+				const chatResponse = await fetch(
+					`/api/steps/chat/history?ideaId=${ideaId}`,
+				)
 				if (chatResponse.ok) {
 					const chatResult = await chatResponse.json()
 					setInitialMessages(chatResult.messages || [])
@@ -102,7 +106,7 @@ export function StepsChat({ projectId, ideaId, idea }: StepsChatProps) {
 				setLoading(false)
 			}
 		}
-		
+
 		if (ideaId) {
 			fetchData()
 		}
@@ -111,7 +115,9 @@ export function StepsChat({ projectId, ideaId, idea }: StepsChatProps) {
 	const parseAndCreateSteps = async (aiResponse: string) => {
 		const stepLines = aiResponse
 			.split("\n")
-			.filter(line => line.trim().startsWith("-") || line.trim().match(/^\d+\./))
+			.filter(
+				line => line.trim().startsWith("-") || line.trim().match(/^\d+\./),
+			)
 			.map(line => line.replace(/^[-\d.]\s*/, "").trim())
 			.filter(line => line.length > 0)
 
@@ -171,9 +177,7 @@ export function StepsChat({ projectId, ideaId, idea }: StepsChatProps) {
 
 		// Optimistic update - update UI immediately
 		setSteps(prev =>
-			prev.map(s =>
-				s.id === stepId ? { ...s, isDone: newStepStatus } : s
-			)
+			prev.map(s => (s.id === stepId ? { ...s, isDone: newStepStatus } : s)),
 		)
 
 		try {
@@ -186,37 +190,46 @@ export function StepsChat({ projectId, ideaId, idea }: StepsChatProps) {
 					isDone: newStepStatus,
 				}),
 			})
-			
+
 			if (response.ok) {
 				// After updating the step, check if we need to update section completion
 				// Get all sections for this idea and update their completion based on step status
-				const sectionsResponse = await fetch(`/api/step-sections?ideaId=${ideaId}`)
+				const sectionsResponse = await fetch(
+					`/api/step-sections?ideaId=${ideaId}`,
+				)
 				if (sectionsResponse.ok) {
 					const sectionsResult = await sectionsResponse.json()
 					if (sectionsResult.success && sectionsResult.data.length > 0) {
 						// Calculate if all steps are completed
 						const updatedSteps = steps.map(s =>
-							s.id === stepId ? { ...s, isDone: newStepStatus } : s
+							s.id === stepId ? { ...s, isDone: newStepStatus } : s,
 						)
-						const allStepsCompleted = updatedSteps.length > 0 && updatedSteps.every(s => s.isDone)
+						const allStepsCompleted =
+							updatedSteps.length > 0 && updatedSteps.every(s => s.isDone)
 						const anyStepIncomplete = updatedSteps.some(s => !s.isDone)
 
 						// Update all sections based on step completion
-						const sectionUpdatePromises = sectionsResult.data.map((section: { id: number; isCompleted: boolean }) => {
-							// If all steps are done, mark section as complete
-							// If any step is incomplete and section was complete, mark section as incomplete
-							const shouldBeCompleted = allStepsCompleted
-							const shouldBeIncomplete = anyStepIncomplete && section.isCompleted
+						const sectionUpdatePromises = sectionsResult.data.map(
+							(section: { id: number; isCompleted: boolean }) => {
+								// If all steps are done, mark section as complete
+								// If any step is incomplete and section was complete, mark section as incomplete
+								const shouldBeCompleted = allStepsCompleted
+								const shouldBeIncomplete =
+									anyStepIncomplete && section.isCompleted
 
-							if (section.isCompleted !== shouldBeCompleted || shouldBeIncomplete) {
-								return fetch(`/api/step-sections/${section.id}`, {
-									method: "PATCH",
-									headers: { "Content-Type": "application/json" },
-									body: JSON.stringify({ isCompleted: shouldBeCompleted }),
-								})
-							}
-							return Promise.resolve({ ok: true })
-						})
+								if (
+									section.isCompleted !== shouldBeCompleted ||
+									shouldBeIncomplete
+								) {
+									return fetch(`/api/step-sections/${section.id}`, {
+										method: "PATCH",
+										headers: { "Content-Type": "application/json" },
+										body: JSON.stringify({ isCompleted: shouldBeCompleted }),
+									})
+								}
+								return Promise.resolve({ ok: true })
+							},
+						)
 
 						await Promise.allSettled(sectionUpdatePromises)
 					}
@@ -224,18 +237,14 @@ export function StepsChat({ projectId, ideaId, idea }: StepsChatProps) {
 			} else {
 				// Rollback on error
 				setSteps(prev =>
-					prev.map(s =>
-						s.id === stepId ? { ...s, isDone: step.isDone } : s
-					)
+					prev.map(s => (s.id === stepId ? { ...s, isDone: step.isDone } : s)),
 				)
 				toast.error("Failed to update step")
 			}
 		} catch (error) {
 			// Rollback on error
 			setSteps(prev =>
-				prev.map(s =>
-					s.id === stepId ? { ...s, isDone: step.isDone } : s
-				)
+				prev.map(s => (s.id === stepId ? { ...s, isDone: step.isDone } : s)),
 			)
 			console.error("Error updating step:", error)
 			toast.error("Failed to update step")
@@ -248,14 +257,15 @@ Title: ${idea.title}
 Description: ${idea.description}
 Content: ${idea.content}
 Please provide actionable, specific steps that a development team can follow to implement this idea. Each step should be clear and focused on a particular aspect of the development process.`
-		
+
 		handleSubmit(new Event("submit") as unknown as React.FormEvent, {
-			data: { ideaId, prompt }
+			data: { ideaId, prompt },
 		})
 	}
 
 	const completedSteps = steps.filter(step => step.isDone).length
-	const progressPercentage = steps.length > 0 ? (completedSteps / steps.length) * 100 : 0
+	const progressPercentage =
+		steps.length > 0 ? (completedSteps / steps.length) * 100 : 0
 
 	if (loading) {
 		return (
@@ -295,8 +305,12 @@ Please provide actionable, specific steps that a development team can follow to 
 							<span className="hidden sm:inline">Implementation Plan</span>
 						</h1>
 						<div className="space-y-1">
-							<h2 className="font-medium text-foreground text-sm lg:text-base">{idea.title}</h2>
-							<p className="text-xs lg:text-sm text-muted-foreground line-clamp-2">{idea.description}</p>
+							<h2 className="font-medium text-foreground text-sm lg:text-base">
+								{idea.title}
+							</h2>
+							<p className="text-xs lg:text-sm text-muted-foreground line-clamp-2">
+								{idea.description}
+							</p>
 						</div>
 					</div>
 
@@ -305,7 +319,9 @@ Please provide actionable, specific steps that a development team can follow to 
 						<div className="mt-4 p-3 lg:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
 							<div className="flex items-center justify-between mb-2">
 								<div>
-									<div className="text-xs lg:text-sm font-semibold text-blue-900">Progress</div>
+									<div className="text-xs lg:text-sm font-semibold text-blue-900">
+										Progress
+									</div>
 									<div className="text-xs text-blue-700">
 										{completedSteps} of {steps.length} completed
 									</div>
@@ -317,7 +333,7 @@ Please provide actionable, specific steps that a development team can follow to 
 								</div>
 							</div>
 							<div className="w-full bg-blue-200 rounded-full h-1.5">
-								<div 
+								<div
 									className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
 									style={{ width: `${progressPercentage}%` }}
 								/>
@@ -339,8 +355,8 @@ Please provide actionable, specific steps that a development team can follow to 
 										</Badge>
 									)}
 								</h3>
-								<Button 
-									variant="outline" 
+								<Button
+									variant="outline"
 									size="sm"
 									onClick={() => setShowAddForm(!showAddForm)}
 								>
@@ -355,21 +371,21 @@ Please provide actionable, specific steps that a development team can follow to 
 									<CardContent className="p-3 space-y-2">
 										<Textarea
 											value={newStepContent}
-											onChange={(e) => setNewStepContent(e.target.value)}
+											onChange={e => setNewStepContent(e.target.value)}
 											placeholder="Describe the step..."
 											className="min-h-[60px] text-sm"
 										/>
 										<div className="flex gap-1">
-											<Button 
-												onClick={addManualStep} 
+											<Button
+												onClick={addManualStep}
 												disabled={!newStepContent.trim()}
 												size="sm"
 												className="text-xs h-7"
 											>
 												Add
 											</Button>
-											<Button 
-												variant="ghost" 
+											<Button
+												variant="ghost"
 												size="sm"
 												className="text-xs h-7"
 												onClick={() => {
@@ -403,12 +419,13 @@ Please provide actionable, specific steps that a development team can follow to 
 										<div
 											key={step.id}
 											className={`group flex items-start gap-2 lg:gap-3 p-2 lg:p-3 rounded-lg border transition-all hover:shadow-sm ${
-												step.isDone 
-													? 'bg-green-50/50 border-green-200' 
-													: 'bg-background hover:bg-muted/30'
+												step.isDone
+													? "bg-green-50/50 border-green-200"
+													: "bg-background hover:bg-muted/30"
 											}`}
 										>
 											<button
+												type="button"
 												onClick={() => toggleStepCompletion(step.id)}
 												className="mt-0.5 hover:scale-110 transition-transform"
 											>
@@ -418,11 +435,14 @@ Please provide actionable, specific steps that a development team can follow to 
 													<Circle className="h-4 w-4 text-muted-foreground hover:text-foreground" />
 												)}
 											</button>
-											
+
 											<div className="flex-1 min-w-0">
 												<div className="flex items-center gap-2 mb-1">
-													<Badge variant="outline" className="text-xs font-mono px-1">
-														{(index + 1).toString().padStart(2, '0')}
+													<Badge
+														variant="outline"
+														className="text-xs font-mono px-1"
+													>
+														{(index + 1).toString().padStart(2, "0")}
 													</Badge>
 													{step.isDone && (
 														<Badge className="text-xs bg-green-600 hover:bg-green-700 px-1">
@@ -430,11 +450,13 @@ Please provide actionable, specific steps that a development team can follow to 
 														</Badge>
 													)}
 												</div>
-												<p className={`text-xs leading-relaxed ${
-													step.isDone 
-														? "line-through text-muted-foreground" 
-														: "text-foreground"
-												}`}>
+												<p
+													className={`text-xs leading-relaxed ${
+														step.isDone
+															? "line-through text-muted-foreground"
+															: "text-foreground"
+													}`}
+												>
 													{step.title}
 												</p>
 											</div>
@@ -465,9 +487,12 @@ Please provide actionable, specific steps that a development team can follow to 
 							<MessageCircle className="h-4 w-4 lg:h-5 lg:w-5 text-primary" />
 						</div>
 						<div className="flex-1 min-w-0">
-							<h1 className="text-lg lg:text-xl font-semibold">Steps Planning Assistant</h1>
+							<h1 className="text-lg lg:text-xl font-semibold">
+								Steps Planning Assistant
+							</h1>
 							<p className="text-muted-foreground mt-1 text-sm lg:text-base">
-								Generate implementation steps, ask for guidance, or refine your development plan
+								Generate implementation steps, ask for guidance, or refine your
+								development plan
 							</p>
 						</div>
 					</div>
@@ -480,7 +505,9 @@ Please provide actionable, specific steps that a development team can follow to 
 							<div className="flex items-center justify-center h-full">
 								<div className="flex items-center gap-2">
 									<Loader2 className="h-4 w-4 animate-spin" />
-									<span className="text-sm text-muted-foreground">Loading chat history...</span>
+									<span className="text-sm text-muted-foreground">
+										Loading chat history...
+									</span>
 								</div>
 							</div>
 						) : messages.length === 0 ? (
@@ -493,29 +520,34 @@ Please provide actionable, specific steps that a development team can follow to 
 										Ready to plan your implementation?
 									</h3>
 									<p className="text-muted-foreground text-sm lg:text-base">
-										Get started by generating AI-powered implementation steps or ask specific questions about your development approach.
+										Get started by generating AI-powered implementation steps or
+										ask specific questions about your development approach.
 									</p>
 								</div>
-						{steps.length === 0 && (
-							<Button onClick={generateSteps} disabled={chatLoading || !chatHistoryLoaded}>
-								{chatLoading ? (
-									<>
-										<Sparkles className="h-4 w-4 mr-2 animate-spin" />
-										Generating...
-									</>
-								) : (
-									<>
-										<Sparkles className="h-4 w-4 mr-2" />
-										Generate Implementation Steps
-									</>
-								)}
-							</Button>
-						)}							</div>
+								{steps.length === 0 && (
+									<Button
+										onClick={generateSteps}
+										disabled={chatLoading || !chatHistoryLoaded}
+									>
+										{chatLoading ? (
+											<>
+												<Sparkles className="h-4 w-4 mr-2 animate-spin" />
+												Generating...
+											</>
+										) : (
+											<>
+												<Sparkles className="h-4 w-4 mr-2" />
+												Generate Implementation Steps
+											</>
+										)}
+									</Button>
+								)}{" "}
+							</div>
 						) : (
 							<div className="space-y-4 max-w-4xl">
 								{messages.map((message, index) => (
 									<div
-										key={index}
+										key={`${message.role}-${index}-${message.content?.slice(0, 50)}`}
 										className={`flex ${
 											message.role === "user" ? "justify-end" : "justify-start"
 										}`}

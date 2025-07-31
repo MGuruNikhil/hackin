@@ -17,7 +17,7 @@ const updateProjectSchema = z.object({
 
 export async function PUT(
 	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const { id } = await params
@@ -29,10 +29,10 @@ export async function PUT(
 
 		const projectId = Number.parseInt(id)
 		if (Number.isNaN(projectId)) {
-			return new NextResponse(
-				JSON.stringify({ error: "Invalid project ID" }),
-				{ status: 400, headers: { "Content-Type": "application/json" } }
-			)
+			return new NextResponse(JSON.stringify({ error: "Invalid project ID" }), {
+				status: 400,
+				headers: { "Content-Type": "application/json" },
+			})
 		}
 
 		// Parse and validate request body
@@ -42,36 +42,40 @@ export async function PUT(
 		if (!validation.success) {
 			return new NextResponse(
 				JSON.stringify({ error: validation.error.issues }),
-				{ status: 400, headers: { "Content-Type": "application/json" } }
+				{ status: 400, headers: { "Content-Type": "application/json" } },
 			)
 		}
 
-	const {
-		name,
-		description,
-		tech_stack,
-		timeline,
-		additional_notes,
-		target_deadline,
-	} = validation.data
+		const {
+			name,
+			description,
+			tech_stack,
+			timeline,
+			additional_notes,
+			target_deadline,
+		} = validation.data
 
-	// Update the project in the database
-	const [updatedProject] = await db
-		.update(projects)
-		.set({
-			hackathonName: name,
-			theme: description || null,
-			suggestedTech: tech_stack || null,
-			judgingCriteria: timeline || null,
-			additionalData: additional_notes || null,
-			submissionTime: target_deadline ? new Date(target_deadline) : new Date(),
-		})
-		.where(and(eq(projects.id, projectId), eq(projects.userId, user.id)))
-		.returning()
+		// Update the project in the database
+		const [updatedProject] = await db
+			.update(projects)
+			.set({
+				hackathonName: name,
+				theme: description || null,
+				suggestedTech: tech_stack || null,
+				judgingCriteria: timeline || null,
+				additionalData: additional_notes || null,
+				submissionTime: target_deadline
+					? new Date(target_deadline)
+					: new Date(),
+			})
+			.where(and(eq(projects.id, projectId), eq(projects.userId, user.id)))
+			.returning()
 		if (!updatedProject) {
 			return new NextResponse(
-				JSON.stringify({ error: "Project not found or you don't have permission to edit it" }),
-				{ status: 404, headers: { "Content-Type": "application/json" } }
+				JSON.stringify({
+					error: "Project not found or you don't have permission to edit it",
+				}),
+				{ status: 404, headers: { "Content-Type": "application/json" } },
 			)
 		}
 
@@ -80,14 +84,14 @@ export async function PUT(
 		console.error("Error updating project:", error)
 		return new NextResponse(
 			JSON.stringify({ error: "Internal server error" }),
-			{ status: 500, headers: { "Content-Type": "application/json" } }
+			{ status: 500, headers: { "Content-Type": "application/json" } },
 		)
 	}
 }
 
 export async function GET(
 	_request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const { id } = await params
@@ -98,10 +102,10 @@ export async function GET(
 
 		const projectId = Number.parseInt(id)
 		if (Number.isNaN(projectId)) {
-			return new NextResponse(
-				JSON.stringify({ error: "Invalid project ID" }),
-				{ status: 400, headers: { "Content-Type": "application/json" } }
-			)
+			return new NextResponse(JSON.stringify({ error: "Invalid project ID" }), {
+				status: 400,
+				headers: { "Content-Type": "application/json" },
+			})
 		}
 
 		const project = await db.query.projects.findFirst({
@@ -109,10 +113,10 @@ export async function GET(
 		})
 
 		if (!project) {
-			return new NextResponse(
-				JSON.stringify({ error: "Project not found" }),
-				{ status: 404, headers: { "Content-Type": "application/json" } }
-			)
+			return new NextResponse(JSON.stringify({ error: "Project not found" }), {
+				status: 404,
+				headers: { "Content-Type": "application/json" },
+			})
 		}
 
 		return NextResponse.json(project)
@@ -120,7 +124,7 @@ export async function GET(
 		console.error("Error fetching project:", error)
 		return new NextResponse(
 			JSON.stringify({ error: "Internal server error" }),
-			{ status: 500, headers: { "Content-Type": "application/json" } }
+			{ status: 500, headers: { "Content-Type": "application/json" } },
 		)
 	}
 }

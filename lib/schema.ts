@@ -320,21 +320,27 @@ export const pitchDialogsRelations = relations(pitchDialogs, ({ one }) => ({
 	}),
 }))
 
-export const stepSectionsRelations = relations(stepSections, ({ one, many }) => ({
-	idea: one(ideas, {
-		fields: [stepSections.ideaId],
-		references: [ideas.id],
+export const stepSectionsRelations = relations(
+	stepSections,
+	({ one, many }) => ({
+		idea: one(ideas, {
+			fields: [stepSections.ideaId],
+			references: [ideas.id],
+		}),
+		todos: many(stepTodos),
+		chats: many(stepSectionChats),
 	}),
-	todos: many(stepTodos),
-	chats: many(stepSectionChats),
-}))
+)
 
-export const stepSectionChatsRelations = relations(stepSectionChats, ({ one }) => ({
-	section: one(stepSections, {
-		fields: [stepSectionChats.sectionId],
-		references: [stepSections.id],
+export const stepSectionChatsRelations = relations(
+	stepSectionChats,
+	({ one }) => ({
+		section: one(stepSections, {
+			fields: [stepSectionChats.sectionId],
+			references: [stepSections.id],
+		}),
 	}),
-}))
+)
 
 export const stepTodosRelations = relations(stepTodos, ({ one }) => ({
 	section: one(stepSections, {

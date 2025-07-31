@@ -16,8 +16,10 @@ export function ProjectAppSidebar({ user }: { user: User | undefined }) {
 	// Determine context type
 	const isInChatContext =
 		pathname.includes("/chat") && !pathname.includes("/idea")
-	const isInIdeaContext = pathname.includes("/idea") && !pathname.includes("/steps")
-	const isInStepsContext = pathname.includes("/idea") && pathname.includes("/steps")
+	const isInIdeaContext =
+		pathname.includes("/idea") && !pathname.includes("/steps")
+	const isInStepsContext =
+		pathname.includes("/idea") && pathname.includes("/steps")
 
 	// Extract project ID from pathname
 	const projectId = useMemo(() => {
@@ -39,7 +41,7 @@ export function ProjectAppSidebar({ user }: { user: User | undefined }) {
 				titleHref: `/project/${projectId}/idea/${ideaId}/steps`,
 				prevItemText: "back to idea",
 				prevItemHref: `/project/${projectId}/idea/${ideaId}`,
-				newItemText: "View Overview", 
+				newItemText: "View Overview",
 				newItemHref: `/project/${projectId}/idea/${ideaId}/steps`,
 				emptyStateText: "No implementation sections yet",
 				apiEndpoint: `/api/step-sections?ideaId=${ideaId}`,
@@ -124,8 +126,11 @@ export function ProjectAppSidebar({ user }: { user: User | undefined }) {
 	const isActiveItem = useMemo(() => {
 		if (isInStepsContext) {
 			return (item: SidebarItem, pathname: string): boolean => {
-				return pathname === `/project/${projectId}/idea/${ideaId}/steps/${item.id}` || 
-					   pathname === `/project/${projectId}/idea/${ideaId}/steps`
+				return (
+					pathname ===
+						`/project/${projectId}/idea/${ideaId}/steps/${item.id}` ||
+					pathname === `/project/${projectId}/idea/${ideaId}/steps`
+				)
 			}
 		}
 		if (isInIdeaContext) {

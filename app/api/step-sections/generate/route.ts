@@ -21,17 +21,15 @@ const StepSectionSchema = z.object({
 				todos: z
 					.array(
 						z.object({
-							title: z
-								.string()
-								.describe("A specific, actionable todo item"),
+							title: z.string().describe("A specific, actionable todo item"),
 							description: z
 								.string()
 								.optional()
 								.describe("Additional details about the todo (optional)"),
-						})
+						}),
 					)
 					.describe("5-8 specific todo items for this section"),
-			})
+			}),
 		)
 		.length(5)
 		.describe("Exactly 5 implementation sections with todos"),
@@ -113,7 +111,7 @@ Create a logical flow from project setup to final deployment.`
 		const savedSections = []
 		for (let i = 0; i < result.object.sections.length; i++) {
 			const section = result.object.sections[i]
-			
+
 			const [savedSection] = await db
 				.insert(stepSections)
 				.values({
@@ -129,7 +127,7 @@ Create a logical flow from project setup to final deployment.`
 			const savedTodos = []
 			for (let j = 0; j < section.todos.length; j++) {
 				const todo = section.todos[j]
-				
+
 				const [savedTodo] = await db
 					.insert(stepTodos)
 					.values({

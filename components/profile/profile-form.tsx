@@ -172,8 +172,8 @@ export default function ProfileForm({ user }: ProfileFormProps) {
 				<CardContent>
 					{user.skills && user.skills.length > 0 ? (
 						<div className="flex flex-wrap gap-2">
-							{user.skills.map((skill, index) => (
-								<Badge key={index} variant="secondary" className="text-sm">
+							{user.skills.map(skill => (
+								<Badge key={skill.name} variant="secondary" className="text-sm">
 									{skill.name}
 									{skill.level && ` (${skill.level})`}
 								</Badge>

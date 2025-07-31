@@ -29,10 +29,10 @@ export async function GET(request: Request) {
 		const messages = chatHistory.map(chat => ({
 			id: chat.id.toString(),
 			role: chat.message.startsWith("AI: ") ? "assistant" : "user",
-			content: chat.message.startsWith("AI: ") 
-				? chat.message.substring(4) 
+			content: chat.message.startsWith("AI: ")
+				? chat.message.substring(4)
 				: chat.message,
-			createdAt: chat.createdAt
+			createdAt: chat.createdAt,
 		}))
 
 		return Response.json({ messages })

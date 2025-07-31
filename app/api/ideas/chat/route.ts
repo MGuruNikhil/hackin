@@ -115,6 +115,9 @@ ${chatHistory ? `Previous conversation:\n${chatHistory}\n\n` : ""}Respond helpfu
 		return result.toDataStreamResponse()
 	} catch (error) {
 		console.error("Error in idea chat:", error)
-		return new Response(`Failed to process chat message: ${error instanceof Error ? error.message : 'Unknown error'}`, { status: 500 })
+		return new Response(
+			`Failed to process chat message: ${error instanceof Error ? error.message : "Unknown error"}`,
+			{ status: 500 },
+		)
 	}
 }

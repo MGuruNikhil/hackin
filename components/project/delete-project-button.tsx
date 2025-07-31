@@ -32,10 +32,10 @@ export function DeleteProjectButton({
 
 	const handleDelete = async () => {
 		setIsDeleting(true)
-		
+
 		try {
 			const result = await deleteProject(projectId)
-			
+
 			if (result.success) {
 				toast.success("Project deleted successfully!", {
 					description: "All related data has been removed.",
@@ -66,15 +66,20 @@ export function DeleteProjectButton({
 			</AlertDialogTrigger>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>Are you sure you want to delete this project?</AlertDialogTitle>
+					<AlertDialogTitle>
+						Are you sure you want to delete this project?
+					</AlertDialogTitle>
 					<AlertDialogDescription>
-						This action cannot be undone. This will permanently delete the project{" "}
-						<span className="font-semibold">&quot;{projectName}&quot;</span> and remove all
-						associated data.
+						This action cannot be undone. This will permanently delete the
+						project{" "}
+						<span className="font-semibold">&quot;{projectName}&quot;</span> and
+						remove all associated data.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<div className="my-4">
-					<p className="text-sm text-muted-foreground mb-2">This will delete:</p>
+					<p className="text-sm text-muted-foreground mb-2">
+						This will delete:
+					</p>
 					<ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 ml-4">
 						<li>All project ideas and conversations</li>
 						<li>Project steps and progress</li>

@@ -64,7 +64,7 @@ export default function ProjectForm({
 
 	async function onSubmit(values: ProjectFormData) {
 		setIsSubmitting(true)
-		
+
 		try {
 			const url = mode === "create" ? "/api/new" : `/api/projects/${projectId}`
 			const method = mode === "create" ? "POST" : "PUT"
@@ -74,10 +74,11 @@ export default function ProjectForm({
 				headers: {
 					"Content-Type": "application/json",
 				},
-			body: JSON.stringify({
-				...values,
-				submision_time: values.submision_time.toISOString(),
-			}),			})
+				body: JSON.stringify({
+					...values,
+					submision_time: values.submision_time.toISOString(),
+				}),
+			})
 
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}))
@@ -94,7 +95,8 @@ export default function ProjectForm({
 				setCreatedProjectId(data.id)
 				setIsSubmitted(true)
 				toast.success("Project created successfully!", {
-					description: "Your project has been created and you can now start adding ideas.",
+					description:
+						"Your project has been created and you can now start adding ideas.",
 				})
 			} else {
 				toast.success("Project updated successfully!", {
@@ -104,14 +106,12 @@ export default function ProjectForm({
 			}
 		} catch (error) {
 			console.error("Form submission error:", error)
-			toast.error(
-				`Failed to ${mode} project`,
-				{
-					description: error instanceof Error
+			toast.error(`Failed to ${mode} project`, {
+				description:
+					error instanceof Error
 						? error.message
-						: `An unexpected error occurred. Please try again.`,
-				}
-			)
+						: "An unexpected error occurred. Please try again.",
+			})
 		} finally {
 			setIsSubmitting(false)
 		}
@@ -150,10 +150,7 @@ export default function ProjectForm({
 	return (
 		<div className="max-w-3xl mx-auto p-10 w-full">
 			<Form {...form}>
-				<form
-					onSubmit={form.handleSubmit(onSubmit)}
-					className="space-y-8"
-				>
+				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 					<h1 className="text-3xl font-semibold mb-8">{title}</h1>
 					<FormField
 						control={form.control}
@@ -181,11 +178,13 @@ export default function ProjectForm({
 							<FormItem>
 								<FormLabel>Theme</FormLabel>
 								<FormControl>
-									<Input placeholder="AI, Sustainability, etc..." type="text" {...field} />
+									<Input
+										placeholder="AI, Sustainability, etc..."
+										type="text"
+										{...field}
+									/>
 								</FormControl>
-								<FormDescription>
-									Theme of the hackathon.
-								</FormDescription>
+								<FormDescription>Theme of the hackathon.</FormDescription>
 								<FormMessage />
 							</FormItem>
 						)}
@@ -198,7 +197,11 @@ export default function ProjectForm({
 							<FormItem>
 								<FormLabel>Tools</FormLabel>
 								<FormControl>
-									<Input placeholder="Figma, GitHub, etc..." type="text" {...field} />
+									<Input
+										placeholder="Figma, GitHub, etc..."
+										type="text"
+										{...field}
+									/>
 								</FormControl>
 								<FormDescription>
 									Tools allowed or recommended for the hackathon.
@@ -215,11 +218,13 @@ export default function ProjectForm({
 							<FormItem>
 								<FormLabel>Judging Criteria</FormLabel>
 								<FormControl>
-									<Input placeholder="Innovation, Impact, etc..." type="text" {...field} />
+									<Input
+										placeholder="Innovation, Impact, etc..."
+										type="text"
+										{...field}
+									/>
 								</FormControl>
-								<FormDescription>
-									How will projects be judged?
-								</FormDescription>
+								<FormDescription>How will projects be judged?</FormDescription>
 								<FormMessage />
 							</FormItem>
 						)}
@@ -232,7 +237,11 @@ export default function ProjectForm({
 							<FormItem>
 								<FormLabel>Additional Data</FormLabel>
 								<FormControl>
-									<Textarea placeholder="Any other details about the hackathon..." className="resize-none" {...field} />
+									<Textarea
+										placeholder="Any other details about the hackathon..."
+										className="resize-none"
+										{...field}
+									/>
 								</FormControl>
 								<FormDescription>
 									Add any other relevant information.
@@ -251,7 +260,10 @@ export default function ProjectForm({
 									Submission Date <span className="text-red-500">*</span>
 								</FormLabel>
 								<FormControl>
-									<DateTimePicker value={field.value} onChange={field.onChange} />
+									<DateTimePicker
+										value={field.value}
+										onChange={field.onChange}
+									/>
 								</FormControl>
 								<FormDescription>
 									Add the date and time of submission.
@@ -267,8 +279,10 @@ export default function ProjectForm({
 									<div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
 									{mode === "create" ? "Creating..." : "Updating..."}
 								</>
+							) : mode === "create" ? (
+								"Create Project"
 							) : (
-								mode === "create" ? "Create Project" : "Update Project"
+								"Update Project"
 							)}
 						</Button>
 						{mode === "edit" && (

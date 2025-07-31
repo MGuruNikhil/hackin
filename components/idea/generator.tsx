@@ -440,9 +440,9 @@ export function IdeaGenerator({ projectId }: IdeaGeneratorProps) {
 													Tech Stack
 												</p>
 												<div className="flex gap-1 flex-wrap">
-													{techStack.slice(0, 4).map((tech, index) => (
+													{techStack.slice(0, 4).map(tech => (
 														<Badge
-															key={index}
+															key={tech.trim()}
 															variant="secondary"
 															className="text-xs bg-muted/50 hover:bg-muted dark:bg-muted/30 dark:hover:bg-muted/60"
 														>

@@ -4,8 +4,8 @@ import { stepSectionChats } from "@/lib/schema"
 import { getCurrentSession } from "@/lib/session"
 
 export async function GET(
-	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
+	_request: Request,
+	{ params }: { params: Promise<{ id: string }> },
 ) {
 	try {
 		const { user } = await getCurrentSession()
@@ -31,12 +31,12 @@ export async function GET(
 		const messages = chatHistory.map(chat => ({
 			id: chat.id.toString(),
 			role: chat.message.startsWith("AI: ") ? "assistant" : "user",
-			content: chat.message.startsWith("AI: ") 
-				? chat.message.substring(4) 
+			content: chat.message.startsWith("AI: ")
+				? chat.message.substring(4)
 				: chat.message.startsWith("User: ")
-				? chat.message.substring(6)
-				: chat.message,
-			createdAt: chat.createdAt
+					? chat.message.substring(6)
+					: chat.message,
+			createdAt: chat.createdAt,
 		}))
 
 		return Response.json({ messages })

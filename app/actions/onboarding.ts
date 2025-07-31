@@ -13,7 +13,7 @@ export async function saveSkills(formData: FormData) {
 	}
 
 	const skillsData = formData.get("skills") as string
-	let skills: any[]
+	let skills: { name: string; level: string }[]
 
 	try {
 		skills = JSON.parse(skillsData)

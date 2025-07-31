@@ -75,9 +75,10 @@ export async function POST(request: NextRequest) {
 			.orderBy(desc(stepTodos.order))
 			.limit(1)
 
-		const nextOrder = lastTodo.length > 0 && lastTodo[0].order !== null 
-			? lastTodo[0].order + 1 
-			: 1
+		const nextOrder =
+			lastTodo.length > 0 && lastTodo[0].order !== null
+				? lastTodo[0].order + 1
+				: 1
 
 		// Create the new todo
 		const [newTodo] = await db

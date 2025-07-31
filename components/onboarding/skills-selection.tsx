@@ -342,7 +342,10 @@ export function SkillsSelectionForm({
 								<Filter className="h-4 w-4 text-muted-foreground" />
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>
-										<button className="bg-background border border-input rounded-md text-sm flex w-fit px-2 py-1">
+										<button
+											type="button"
+											className="bg-background border border-input rounded-md text-sm flex w-fit px-2 py-1"
+										>
 											{selectedCategory === "all" ? "filter" : selectedCategory}
 											<ChevronDownIcon className="ml-2 h-4 w-4" />
 										</button>
@@ -424,8 +427,6 @@ export function SkillsSelectionForm({
 																</div>
 																{isSelected && (
 																	<div
-																		role="button"
-																		tabIndex={0}
 																		onClick={e => {
 																			e.stopPropagation()
 																			handleSkillDeselect(skill.id)
@@ -436,6 +437,8 @@ export function SkillsSelectionForm({
 																				handleSkillDeselect(skill.id)
 																			}
 																		}}
+																		role="button"
+																		tabIndex={0}
 																		className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive cursor-pointer rounded flex items-center justify-center transition-colors"
 																	>
 																		<X className="h-4 w-4 stroke-[2.5]" />

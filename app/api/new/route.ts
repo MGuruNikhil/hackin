@@ -33,28 +33,30 @@ export async function POST(request: Request) {
 			)
 		}
 
-	const {
-		hackathon_name,
-		theme,
-		tools,
-		judging_criteria,
-		additional_data,
-		submision_time,
-	} = validation.data
+		const {
+			hackathon_name,
+			theme,
+			tools,
+			judging_criteria,
+			additional_data,
+			submision_time,
+		} = validation.data
 
-	// Create the project in the database
-	const [project] = await db
-		.insert(projects)
-		.values({
-			hackathonName: hackathon_name,
-			theme: theme || null,
-			suggestedTech: tools || null,
-			judgingCriteria: judging_criteria || null,
-			additionalData: additional_data || null,
-			submissionTime: submision_time ? new Date(submision_time) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-			userId: user.id,
-		})
-		.returning()
+		// Create the project in the database
+		const [project] = await db
+			.insert(projects)
+			.values({
+				hackathonName: hackathon_name,
+				theme: theme || null,
+				suggestedTech: tools || null,
+				judgingCriteria: judging_criteria || null,
+				additionalData: additional_data || null,
+				submissionTime: submision_time
+					? new Date(submision_time)
+					: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+				userId: user.id,
+			})
+			.returning()
 		return NextResponse.json(project, { status: 201 })
 	} catch (error) {
 		console.error("Error creating project:", error)
