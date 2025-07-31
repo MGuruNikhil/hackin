@@ -22,9 +22,8 @@ export default async function ProjectsPage() {
 						Start Building Amazing Projects
 					</h1>
 					<p className="text-lg text-center text-muted-foreground max-w-2xl">
-						Turn your ideas into reality with guided project
-						management and AI powered assistance
-					</p>
+Turn your hackathon ideas into reality with guided project
+                    management and AI powered assistance					</p>
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl mt-8">
 						<Card className="transition-all hover:shadow-lg">
 							<CardHeader className="flex flex-row items-center gap-4 space-y-0">

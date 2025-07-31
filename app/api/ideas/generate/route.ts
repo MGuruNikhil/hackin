@@ -133,15 +133,15 @@ export async function POST(request: NextRequest) {
 			submissionDeadline: projectData.submissionTime,
 		}
 
-		const prompt = `Generate 3 unique and innovative project ideas with the following context:
+		const prompt = `Generate 3 unique and innovative project ideas for a hackathon with the following context:
 
-**Project Details:**
+**Hackathon Details:**
 - Name: ${context.hackathonName}
-- Description: ${context.theme || "Open project"}
-- Preferred Technologies: ${context.suggestedTech || "Any technology"}
-- Success Criteria: ${context.judgingCriteria || "Innovation, technical implementation, presentation"}
+- Theme: ${context.theme || "Open theme"}
+- Suggested Technologies: ${context.suggestedTech || "Any technology"}
+- Judging Criteria: ${context.judgingCriteria || "Innovation, technical implementation, presentation"}
 - Additional Requirements: ${context.additionalData || "None specified"}
-- Target Deadline: ${context.submissionDeadline}
+- Submission Deadline: ${context.submissionDeadline}
 
 **Team Information:**
 - Team Size: ${context.teamSize} member(s)
@@ -166,8 +166,9 @@ ${
 5. Each idea should be unique and innovative
 6. Consider the team's skill set and size
 7. Ensure the project is feasible within the given timeframe
-8. Provide actionable, detailed implementation guidance
-9. Consider market viability and real-world impact
+8. Align with the hackathon theme and judging criteria
+9. Provide actionable, detailed implementation guidance
+10. Consider market viability and real-world impact
 
 Generate ideas that are creative, technically sound, achievable by this specific team, and COMPLETELY DISTINCT from any existing ideas.`
 

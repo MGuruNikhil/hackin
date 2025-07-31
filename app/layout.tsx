@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-	title: "BuildFast - Rapid Software Development",
+	title: "Hackin",
 	description:
-		"BuildFast helps developers turn ideas into reality with AI-powered guidance, step-by-step planning, and contextual support. Build faster, ship sooner.",
+		"Hackin helps teams at hackathons generate project ideas, assign tasks, and build faster with step-by-step guidance and contextual AI support. Open source, made for hackers.",
 }
 
 export default function RootLayout({

@@ -68,7 +68,7 @@ export async function POST(
 
 		const result = await streamText({
 			model: openrouter("mistralai/mistral-small-3.2-24b-instruct:free"),
-			system: `You are a helpful AI assistant for software development tasks. 
+			system: `You are a helpful AI assistant that manages software development tasks. You have access to tools and you MUST use them when users request task management.
 
 Project Context:
 - Idea: ${idea.title}

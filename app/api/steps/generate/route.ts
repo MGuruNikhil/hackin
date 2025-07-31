@@ -50,7 +50,7 @@ When generating steps, follow these guidelines:
 - Each step should be specific and actionable
 - Focus on development workflow and technical implementation
 - Include setup, development, testing, and deployment phases
-- Consider realistic project timelines
+- Consider the hackathon time constraints
 - Use bullet points or numbered lists for clarity
 - Be practical and focused on deliverable outcomes
 

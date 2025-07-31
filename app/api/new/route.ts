@@ -6,12 +6,12 @@ import { getCurrentSession } from "@/lib/session"
 
 // Define the schema that matches the form data
 const projectSchema = z.object({
-	name: z.string().min(1, "Project name is required"),
-	description: z.string().optional(),
-	tech_stack: z.string().optional(),
-	timeline: z.string().optional(),
-	additional_notes: z.string().optional(),
-	target_deadline: z.string().datetime().optional(),
+	hackathon_name: z.string().min(1, "Hackathon name is required"),
+	theme: z.string().optional(),
+	tools: z.string().optional(),
+	judging_criteria: z.string().optional(),
+	additional_data: z.string().optional(),
+	submision_time: z.string().datetime(),
 })
 
 export async function POST(request: Request) {
@@ -34,24 +34,24 @@ export async function POST(request: Request) {
 		}
 
 	const {
-		name,
-		description,
-		tech_stack,
-		timeline,
-		additional_notes,
-		target_deadline,
+		hackathon_name,
+		theme,
+		tools,
+		judging_criteria,
+		additional_data,
+		submision_time,
 	} = validation.data
 
 	// Create the project in the database
 	const [project] = await db
 		.insert(projects)
 		.values({
-			hackathonName: name,
-			theme: description || null,
-			suggestedTech: tech_stack || null,
-			judgingCriteria: timeline || null,
-			additionalData: additional_notes || null,
-			submissionTime: target_deadline ? new Date(target_deadline) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+			hackathonName: hackathon_name,
+			theme: theme || null,
+			suggestedTech: tools || null,
+			judgingCriteria: judging_criteria || null,
+			additionalData: additional_data || null,
+			submissionTime: submision_time ? new Date(submision_time) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
 			userId: user.id,
 		})
 		.returning()

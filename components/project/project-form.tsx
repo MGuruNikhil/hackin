@@ -22,12 +22,12 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 
 const formSchema = z.object({
-	name: z.string().min(1),
-	description: z.string().optional(),
-	tech_stack: z.string().optional(),
-	timeline: z.string().optional(),
-	additional_notes: z.string().optional(),
-	target_deadline: z.coerce.date(),
+	hackathon_name: z.string().min(1, "Hackathon name is required"),
+	theme: z.string().optional(),
+	tools: z.string().optional(),
+	judging_criteria: z.string().optional(),
+	additional_data: z.string().optional(),
+	submision_time: z.coerce.date(),
 })
 
 export type ProjectFormData = z.infer<typeof formSchema>
@@ -53,12 +53,12 @@ export default function ProjectForm({
 	const form = useForm<ProjectFormData>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			name: initialData?.name || "",
-			description: initialData?.description || "",
-			tech_stack: initialData?.tech_stack || "",
-			timeline: initialData?.timeline || "",
-			additional_notes: initialData?.additional_notes || "",
-			target_deadline: initialData?.target_deadline || new Date(),
+			hackathon_name: initialData?.hackathon_name || "",
+			theme: initialData?.theme || "",
+			tools: initialData?.tools || "",
+			judging_criteria: initialData?.judging_criteria || "",
+			additional_data: initialData?.additional_data || "",
+			submision_time: initialData?.submision_time || new Date(),
 		},
 	})
 
@@ -76,7 +76,7 @@ export default function ProjectForm({
 				},
 			body: JSON.stringify({
 				...values,
-				target_deadline: values.target_deadline.toISOString(),
+				submision_time: values.submision_time.toISOString(),
 			}),			})
 
 			if (!response.ok) {
@@ -157,17 +157,17 @@ export default function ProjectForm({
 					<h1 className="text-3xl font-semibold mb-8">{title}</h1>
 					<FormField
 						control={form.control}
-						name="name"
+						name="hackathon_name"
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>
-									Project Name <span className="text-red-500">*</span>
+									Hackathon Name <span className="text-red-500">*</span>
 								</FormLabel>
 								<FormControl>
-									<Input placeholder="My Awesome Project" type="text" {...field} />
+									<Input placeholder="GDG Wow" type="text" {...field} />
 								</FormControl>
 								<FormDescription>
-									Give your project a memorable name.
+									This is Hackathon display name.
 								</FormDescription>
 								<FormMessage />
 							</FormItem>
@@ -176,19 +176,15 @@ export default function ProjectForm({
 
 					<FormField
 						control={form.control}
-						name="description"
+						name="theme"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Description</FormLabel>
+								<FormLabel>Theme</FormLabel>
 								<FormControl>
-									<Textarea
-										placeholder="A brief description of what you're building..."
-										className="resize-none"
-										{...field}
-									/>
+									<Input placeholder="AI, Sustainability, etc..." type="text" {...field} />
 								</FormControl>
 								<FormDescription>
-									Describe your project idea and goals.
+									Theme of the hackathon.
 								</FormDescription>
 								<FormMessage />
 							</FormItem>
@@ -197,19 +193,15 @@ export default function ProjectForm({
 
 					<FormField
 						control={form.control}
-						name="tech_stack"
+						name="tools"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Tech Stack</FormLabel>
+								<FormLabel>Tools</FormLabel>
 								<FormControl>
-									<Input
-										placeholder="React, Node.js, MongoDB, etc..."
-										type="text"
-										{...field}
-									/>
+									<Input placeholder="Figma, GitHub, etc..." type="text" {...field} />
 								</FormControl>
 								<FormDescription>
-									List the technologies you plan to use.
+									Tools allowed or recommended for the hackathon.
 								</FormDescription>
 								<FormMessage />
 							</FormItem>
@@ -218,19 +210,15 @@ export default function ProjectForm({
 
 					<FormField
 						control={form.control}
-						name="timeline"
+						name="judging_criteria"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Timeline</FormLabel>
+								<FormLabel>Judging Criteria</FormLabel>
 								<FormControl>
-									<Input
-										placeholder="2 weeks, 1 month, etc..."
-										type="text"
-										{...field}
-									/>
+									<Input placeholder="Innovation, Impact, etc..." type="text" {...field} />
 								</FormControl>
 								<FormDescription>
-									Expected duration for completing this project.
+									How will projects be judged?
 								</FormDescription>
 								<FormMessage />
 							</FormItem>
@@ -239,16 +227,12 @@ export default function ProjectForm({
 
 					<FormField
 						control={form.control}
-						name="additional_notes"
+						name="additional_data"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Additional Notes</FormLabel>
+								<FormLabel>Additional Data</FormLabel>
 								<FormControl>
-									<Textarea
-										placeholder="Any other details about your project..."
-										className="resize-none"
-										{...field}
-									/>
+									<Textarea placeholder="Any other details about the hackathon..." className="resize-none" {...field} />
 								</FormControl>
 								<FormDescription>
 									Add any other relevant information.
@@ -260,20 +244,17 @@ export default function ProjectForm({
 
 					<FormField
 						control={form.control}
-						name="target_deadline"
+						name="submision_time"
 						render={({ field }) => (
 							<FormItem className="flex flex-col">
 								<FormLabel>
-									Target Deadline <span className="text-red-500">*</span>
+									Submission Date <span className="text-red-500">*</span>
 								</FormLabel>
 								<FormControl>
-									<DateTimePicker
-										value={field.value}
-										onChange={field.onChange}
-									/>
+									<DateTimePicker value={field.value} onChange={field.onChange} />
 								</FormControl>
 								<FormDescription>
-									When do you want to complete this project?
+									Add the date and time of submission.
 								</FormDescription>
 								<FormMessage />
 							</FormItem>

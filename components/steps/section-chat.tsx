@@ -212,9 +212,9 @@ export function SectionChat({ projectId, ideaId, sectionId, idea, section }: Sec
 			sectionId: sectionId,
 			ideaId: ideaId,
 		},
-		placeholder: "Ask about this section, discuss implementation details, or get guidance...",
+		placeholder: "Ask about this section, request tasks, or discuss implementation details...",
 		emptyStateTitle: "Ready to discuss this section?",
-		emptyStateDescription: "Ask questions about implementation details, get guidance, or discuss approaches.",
+		emptyStateDescription: "Ask questions about implementation details, get guidance, or request specific tasks.",
 		loadingText: "Loading section chat...",
 	}
 

@@ -63,13 +63,13 @@ export async function POST(request: Request) {
 			)
 			.join("\n")
 
-		const systemPrompt = `You are an AI assistant helping to create detailed implementation steps for software development project ideas. You should be:
+		const systemPrompt = `You are an AI assistant helping to create detailed implementation steps for hackathon project ideas. You should be:
 - Practical and action-oriented
 - Focused on clear, achievable milestones
 - Knowledgeable about development workflows
 - Able to break down complex tasks into manageable steps
 - Helpful with project planning and time management
-- Aware of software development best practices
+- Aware of hackathon constraints and best practices
 
 Current Idea Details:
 Title: ${ideaData.title}
