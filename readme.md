@@ -4,12 +4,12 @@
 
 <div align="center">
 
-[![GitHub stars](https://img.shields.io/github/stars/nirbarin/hackin?style=social)](https://github.com/nirbarin/hackin)
+[![GitHub stars](https://img.shields.io/github/stars/MGuruNikhil/hackin?style=social)](https://github.com/MGuruNikhil/hackin)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://postgresql.org/)
 
-[Live Demo](https://hackin.nirbar.in) • [Documentation](#documentation) • [Contributing](#contributing)
+[Live Demo](https://buildfaster.vercel.app/) • [Documentation](#documentation) • [Contributing](#contributing)
 
 </div>
 
@@ -130,7 +130,7 @@ Review completion → Prepare presentation → Deploy project → Win hackathon!
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/nirbarin/hackin.git
+git clone https://github.com/MGuruNikhil/hackin.git
 cd hackin
 ```
 
@@ -292,8 +292,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 🔗 Links
 
-- **Live Demo**: [hackin.nirbar.in](https://hackin.nirbar.in)
-- **GitHub**: [github.com/nirbarin/hackin](https://github.com/nirbarin/hackin)
+- **Live Demo**: [buildfaster.vercel.app](https://buildfaster.vercel.app/)
+- **GitHub**: [github.com/MGuruNikhil/hackin](https://github.com/MGuruNikhil/hackin)
 - **Documentation**: [Coming Soon]
 - **Discord Community**: [Coming Soon]
 - **Creator**: [@nirbar](https://nirbar.in)
@@ -304,6 +304,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 **Built with ❤️ by hackers, for hackers**
 
-[⭐ Star this repo](https://github.com/nirbarin/hackin) if you find it helpful!
+[⭐ Star this repo](https://github.com/MGuruNikhil/hackin) if you find it helpful!
 
 </div>
