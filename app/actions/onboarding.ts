@@ -7,14 +7,16 @@ import { users } from "@/lib/schema"
 import { getCurrentSession } from "@/lib/session"
 
 export async function saveSkills(formData: FormData) {
-	try {
-		const { user } = await getCurrentSession()
-		if (!user) {
-			throw new Error("Unauthorized")
-		}
+	const { user } = await getCurrentSession()
+	if (!user) {
+		throw new Error("Unauthorized")
+	}
 
-		const skillsData = formData.get("skills") as string
-		const skills = JSON.parse(skillsData)
+	const skillsData = formData.get("skills") as string
+	let skills: any[]
+
+	try {
+		skills = JSON.parse(skillsData)
 
 		if (!Array.isArray(skills)) {
 			throw new Error("Skills must be an array")
@@ -33,12 +35,13 @@ export async function saveSkills(formData: FormData) {
 		}
 
 		await db.update(users).set({ skills }).where(eq(users.id, user.id))
-
-		redirect(`/onboarding?success=true&count=${skills.length}`)
 	} catch (error) {
 		console.error("Error updating skills:", error)
 		throw error
 	}
+
+	// Redirect happens outside try-catch to avoid catching NEXT_REDIRECT error
+	redirect(`/onboarding?success=true&count=${skills.length}`)
 }
 
 export async function getExistingSkills() {

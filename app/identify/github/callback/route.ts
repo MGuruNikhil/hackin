@@ -11,36 +11,47 @@ import {
 } from "@/lib/session"
 
 export async function GET(request: Request): Promise<Response> {
-	const url = new URL(request.url)
-	const code = url.searchParams.get("code")
-	const state = url.searchParams.get("state")
-	const cookieStore = await cookies()
-	const storedState = cookieStore.get("github_oauth_state")?.value ?? null
-	const redirectTo = cookieStore.get("github_oauth_redirect")?.value ?? "/app"
+	try {
+		const url = new URL(request.url)
+		const code = url.searchParams.get("code")
+		const state = url.searchParams.get("state")
+		const error = url.searchParams.get("error")
+		const cookieStore = await cookies()
+		const storedState = cookieStore.get("github_oauth_state")?.value ?? null
+		const redirectTo = cookieStore.get("github_oauth_redirect")?.value ?? "/app"
 
-	console.log("OAuth callback:", {
-		code: !!code,
-		state: !!state,
-		storedState: !!storedState,
-		redirectTo,
-	})
-
-	if (code === null || state === null || storedState === null) {
-		console.log("Missing parameters:", {
+		console.log("OAuth callback:", {
 			code: !!code,
 			state: !!state,
 			storedState: !!storedState,
+			redirectTo,
+			error,
 		})
-		return new Response("Missing required parameters", {
-			status: 400,
-		})
-	}
-	if (state !== storedState) {
-		console.log("State mismatch:", { received: state, stored: storedState })
-		return new Response("State mismatch", {
-			status: 400,
-		})
-	}
+
+		// Check for OAuth errors first
+		if (error) {
+			console.error("GitHub OAuth error:", error)
+			return new Response(`GitHub OAuth error: ${error}`, {
+				status: 400,
+			})
+		}
+
+		if (code === null || state === null || storedState === null) {
+			console.log("Missing parameters:", {
+				code: !!code,
+				state: !!state,
+				storedState: !!storedState,
+			})
+			return new Response("Missing required parameters", {
+				status: 400,
+			})
+		}
+		if (state !== storedState) {
+			console.log("State mismatch:", { received: state, stored: storedState })
+			return new Response("State mismatch", {
+				status: 400,
+			})
+		}
 
 	let tokens: OAuth2Tokens
 	try {
@@ -103,6 +114,12 @@ export async function GET(request: Request): Promise<Response> {
 			Location: "/onboarding",
 		},
 	})
+	} catch (error) {
+		console.error("OAuth callback error:", error)
+		return new Response(`Internal server error: ${error instanceof Error ? error.message : 'Unknown error'}`, {
+			status: 500,
+		})
+	}
 }
 async function createUser(githubUserId: number, githubUsername: string) {
 	const [user] = await db
