@@ -57,14 +57,12 @@ export default async function SectionPage({ params }: PageProps) {
 	}
 
 	return (
-		<div className="max-w-5xl mx-auto p-6 space-y-8">
-			<SectionChat
-				projectId={projectId}
-				ideaId={ideaId}
-				sectionId={sectionId}
-				idea={idea[0]}
-				section={section[0]}
-			/>
-		</div>
+		<SectionChat
+			projectId={projectId}
+			ideaId={ideaId}
+			sectionId={sectionId}
+			idea={idea[0]}
+			section={section[0]}
+		/>
 	)
 }

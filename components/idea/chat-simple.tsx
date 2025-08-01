@@ -117,7 +117,6 @@ export function IdeaChatSimple({
 		<div className="flex flex-col bg-background">
 			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sticky top-0 z-20 p-6 border-b bg-background gap-4">
 				<div className="flex flex-col sm:flex-row sm:items-center gap-3">
-					{" "}
 					<div className="flex items-center gap-3">
 						<Link href={`/project/${projectId}/idea`}>
 							<Button variant="ghost" size="sm">
@@ -209,9 +208,9 @@ export function IdeaChatSimple({
 			</div>
 
 			{/* Chat Interface */}
-			<div className="flex-1 flex flex-col">
-				<div className="p-6 flex-1">
-					<GenericChat config={chatConfig} />
+			<div className="flex-1 flex flex-col min-h-0">
+				<div className="p-6 flex-1 flex flex-col min-h-0">
+					<GenericChat config={chatConfig} className="h-full" />
 				</div>
 			</div>
 		</div>
