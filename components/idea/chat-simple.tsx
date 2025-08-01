@@ -5,8 +5,8 @@ import {
 	ArrowRight,
 	Check,
 	LightbulbIcon,
-	Sparkles,
 	Loader2,
+	Sparkles,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -142,10 +142,10 @@ export function IdeaChatSimple({
 							<ArrowRight className="h-4 w-4 ml-2" />
 						</Button>
 					) : (
-						<Button 
-							onClick={finalizeIdea} 
-							size="sm" 
-							variant="secondary" 
+						<Button
+							onClick={finalizeIdea}
+							size="sm"
+							variant="secondary"
 							disabled={isLoading}
 						>
 							{isLoading ? (

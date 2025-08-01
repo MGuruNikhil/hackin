@@ -12,12 +12,12 @@ import {
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
-import { GenericChat } from "@/components/ui/generic-chat"
 import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+import { GenericChat } from "@/components/ui/generic-chat"
 
 type Todo = {
 	id: number
@@ -317,7 +317,10 @@ export function SectionChat({
 
 						{/* Section details */}
 						<div className="mt-3 p-4 bg-muted/30 rounded-lg">
-							<Collapsible open={detailsExpanded} onOpenChange={setDetailsExpanded}>
+							<Collapsible
+								open={detailsExpanded}
+								onOpenChange={setDetailsExpanded}
+							>
 								<CollapsibleTrigger className="w-full">
 									<div className="flex items-center justify-between hover:bg-muted/50 rounded p-2 -m-2">
 										<h4 className="font-medium text-left">
@@ -364,7 +367,8 @@ export function SectionChat({
 													</div>
 													<h6 className="font-medium mb-2">No tasks yet</h6>
 													<p className="text-sm text-muted-foreground">
-														Use the chat below to generate tasks for this section
+														Use the chat below to generate tasks for this
+														section
 													</p>
 												</div>
 											) : (

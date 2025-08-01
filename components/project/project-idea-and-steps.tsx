@@ -58,9 +58,9 @@ export function ProjectIdeaAndSteps({ projectId }: ProjectIdeaAndStepsProps) {
 			<IdeaDisplay projectId={projectId} />
 
 			{/* Project Steps Section */}
-			<StepsDisplay 
-				projectId={projectId} 
-				selectedIdeaId={selectedIdea?.id || null} 
+			<StepsDisplay
+				projectId={projectId}
+				selectedIdeaId={selectedIdea?.id || null}
 			/>
 		</>
 	)

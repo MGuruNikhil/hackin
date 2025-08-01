@@ -1,6 +1,12 @@
 "use client"
 
-import { CheckCircle2, Circle, Target, ArrowRight, MessageCircle } from "lucide-react"
+import {
+	ArrowRight,
+	CheckCircle2,
+	Circle,
+	MessageCircle,
+	Target,
+} from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -45,9 +51,11 @@ export function StepsDisplay({ projectId, selectedIdeaId }: StepsDisplayProps) {
 
 			try {
 				setHasIdea(true)
-				
+
 				// Load step sections for the finalized idea
-				const response = await fetch(`/api/step-sections?ideaId=${selectedIdeaId}`)
+				const response = await fetch(
+					`/api/step-sections?ideaId=${selectedIdeaId}`,
+				)
 				const result = await response.json()
 
 				if (result.success) {
@@ -67,13 +75,20 @@ export function StepsDisplay({ projectId, selectedIdeaId }: StepsDisplayProps) {
 	}, [selectedIdeaId])
 
 	// Calculate progress
-	const totalTodos = sections.reduce((acc, section) => acc + section.todos.length, 0)
-	const completedTodos = sections.reduce(
-		(acc, section) => acc + section.todos.filter(todo => todo.isCompleted).length,
-		0
+	const totalTodos = sections.reduce(
+		(acc, section) => acc + section.todos.length,
+		0,
 	)
-	const completedSections = sections.filter(section => section.isCompleted).length
-	const progressPercentage = totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0
+	const completedTodos = sections.reduce(
+		(acc, section) =>
+			acc + section.todos.filter(todo => todo.isCompleted).length,
+		0,
+	)
+	const completedSections = sections.filter(
+		section => section.isCompleted,
+	).length
+	const progressPercentage =
+		totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0
 
 	if (loading) {
 		return (
@@ -113,8 +128,8 @@ export function StepsDisplay({ projectId, selectedIdeaId }: StepsDisplayProps) {
 								<div className="space-y-2">
 									<h3 className="text-lg font-medium">No idea finalized yet</h3>
 									<p className="text-muted-foreground max-w-md">
-										Select and finalize a project idea first, then you can generate
-										and manage implementation steps for your project.
+										Select and finalize a project idea first, then you can
+										generate and manage implementation steps for your project.
 									</p>
 								</div>
 								<div className="flex gap-3">
@@ -137,14 +152,18 @@ export function StepsDisplay({ projectId, selectedIdeaId }: StepsDisplayProps) {
 									<Target className="h-8 w-8 text-muted-foreground" />
 								</div>
 								<div className="space-y-2">
-									<h3 className="text-lg font-medium">No implementation plan yet</h3>
+									<h3 className="text-lg font-medium">
+										No implementation plan yet
+									</h3>
 									<p className="text-muted-foreground max-w-md">
-										Generate an AI-powered implementation plan to break down your
-										project into manageable steps and sections.
+										Generate an AI-powered implementation plan to break down
+										your project into manageable steps and sections.
 									</p>
 								</div>
 								<div className="flex gap-3">
-									<Link href={`/project/${projectId}/idea/${selectedIdeaId}/steps`}>
+									<Link
+										href={`/project/${projectId}/idea/${selectedIdeaId}/steps`}
+									>
 										<Button className="flex items-center gap-2">
 											<Target className="h-4 w-4" />
 											Generate Steps
@@ -188,10 +207,14 @@ export function StepsDisplay({ projectId, selectedIdeaId }: StepsDisplayProps) {
 							<div className="space-y-3">
 								<h4 className="font-medium">Implementation Sections</h4>
 								<div className="space-y-2">
-									{sections.slice(0, 3).map((section) => {
-										const sectionProgress = section.todos.length > 0 
-											? (section.todos.filter(todo => todo.isCompleted).length / section.todos.length) * 100 
-											: 0
+									{sections.slice(0, 3).map(section => {
+										const sectionProgress =
+											section.todos.length > 0
+												? (section.todos.filter(todo => todo.isCompleted)
+														.length /
+														section.todos.length) *
+													100
+												: 0
 
 										return (
 											<div
@@ -207,7 +230,9 @@ export function StepsDisplay({ projectId, selectedIdeaId }: StepsDisplayProps) {
 														)}
 													</div>
 													<div className="flex-1">
-														<p className="text-sm font-medium">{section.title}</p>
+														<p className="text-sm font-medium">
+															{section.title}
+														</p>
 														{section.description && (
 															<p className="text-xs text-muted-foreground">
 																{section.description}
@@ -217,8 +242,11 @@ export function StepsDisplay({ projectId, selectedIdeaId }: StepsDisplayProps) {
 												</div>
 												<div className="flex items-center gap-2 text-xs text-muted-foreground">
 													<span>
-														{section.todos.filter(todo => todo.isCompleted).length}/
-														{section.todos.length}
+														{
+															section.todos.filter(todo => todo.isCompleted)
+																.length
+														}
+														/{section.todos.length}
 													</span>
 													<div className="w-12 bg-muted rounded-full h-1">
 														<div
@@ -230,7 +258,7 @@ export function StepsDisplay({ projectId, selectedIdeaId }: StepsDisplayProps) {
 											</div>
 										)
 									})}
-									
+
 									{sections.length > 3 && (
 										<div className="text-center py-2">
 											<p className="text-xs text-muted-foreground">
