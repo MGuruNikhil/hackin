@@ -53,6 +53,24 @@ export function GenericChat({ config, className = "" }: GenericChatProps) {
 		},
 	})
 
+	// Handle input change with auto-resize
+	const handleInputChangeWithResize = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+		handleInputChange(e)
+		const target = e.target
+		target.style.height = 'auto'
+		target.style.height = Math.min(target.scrollHeight, 120) + 'px'
+	}
+
+	// Reset textarea height when input is cleared
+	useEffect(() => {
+		if (!input.trim()) {
+			const textarea = document.querySelector('textarea') as HTMLTextAreaElement
+			if (textarea) {
+				textarea.style.height = '40px'
+			}
+		}
+	}, [input])
+
 	// Function to scroll to bottom
 	const scrollToBottom = () => {
 		// Method 1: Use the messagesEndRef (most reliable)
@@ -222,14 +240,25 @@ export function GenericChat({ config, className = "" }: GenericChatProps) {
 			</div>
 
 			{/* Chat Input - Sticky at bottom */}
-			<div className="sticky bottom-0 border-t bg-background p-3 z-10">
+			<div className="sticky bottom-0 bg-background py-4 z-10">
 				<form onSubmit={handleSubmit} className="flex gap-2">
 					<Textarea
 						value={input}
-						onChange={handleInputChange}
+						onChange={handleInputChangeWithResize}
 						placeholder={config.placeholder || "Type your message..."}
-						className="flex-1 min-h-[40px] max-h-24 resize-none text-sm"
+						className="flex-1 min-h-[40px] max-h-[120px] resize-none text-sm overflow-y-auto"
 						disabled={isLoadingMessages}
+						rows={1}
+						style={{
+							height: 'auto',
+							minHeight: '40px',
+							maxHeight: '120px'
+						}}
+						onInput={(e) => {
+							const target = e.target as HTMLTextAreaElement;
+							target.style.height = 'auto';
+							target.style.height = Math.min(target.scrollHeight, 120) + 'px';
+						}}
 						onKeyDown={e => {
 							if (e.key === "Enter" && !e.shiftKey) {
 								e.preventDefault()
@@ -241,7 +270,7 @@ export function GenericChat({ config, className = "" }: GenericChatProps) {
 						type="submit"
 						disabled={status !== 'ready' || !input.trim() || isLoadingMessages}
 						size="sm"
-						className="h-10 w-10 p-0"
+						className="h-10 w-10 p-0 self-end"
 					>
 						{status === 'submitted' || status === 'streaming' ? (
 							<Loader2 className="h-4 w-4 animate-spin" />

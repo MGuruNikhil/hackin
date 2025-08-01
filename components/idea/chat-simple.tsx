@@ -5,10 +5,12 @@ import {
 	ArrowRight,
 	Check,
 	LightbulbIcon,
+	Loader2,
 	Sparkles,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { toast } from "sonner"
 import { Markdown } from "@/components/markdown/render"
 import { Badge } from "@/components/ui/badge"
@@ -34,6 +36,7 @@ export function IdeaChatSimple({
 	selectedIdea,
 }: IdeaChatSimpleProps) {
 	const router = useRouter()
+	const [isLoading, setIsLoading] = useState(false)
 
 	const parseTechStack = (content: string): string[] => {
 		const techMatch = content.match(/\*\*Tech Stack:\*\* (.+?)(?:\n|$)/)
@@ -55,6 +58,7 @@ export function IdeaChatSimple({
 	const timeEstimate = parseTimeEstimate(selectedIdea.content)
 
 	const finalizeIdea = async () => {
+		setIsLoading(true)
 		try {
 			const response = await fetch("/api/ideas", {
 				method: "POST",
@@ -67,6 +71,8 @@ export function IdeaChatSimple({
 			if (result.success) {
 				// Trigger sidebar refresh
 				window.dispatchEvent(new CustomEvent("sidebar-refresh"))
+				// Notify that an idea was selected
+				window.dispatchEvent(new CustomEvent("idea-selected"))
 
 				toast.success("Idea finalized successfully!")
 
@@ -80,6 +86,8 @@ export function IdeaChatSimple({
 			toast.error(
 				`Error finalizing idea: ${error instanceof Error ? error.message : "Unknown error"}`,
 			)
+		} finally {
+			setIsLoading(false)
 		}
 	}
 
@@ -109,7 +117,6 @@ export function IdeaChatSimple({
 		<div className="flex flex-col bg-background">
 			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sticky top-0 z-20 p-6 border-b bg-background gap-4">
 				<div className="flex flex-col sm:flex-row sm:items-center gap-3">
-					{" "}
 					<div className="flex items-center gap-3">
 						<Link href={`/project/${projectId}/idea`}>
 							<Button variant="ghost" size="sm">
@@ -135,9 +142,23 @@ export function IdeaChatSimple({
 							<ArrowRight className="h-4 w-4 ml-2" />
 						</Button>
 					) : (
-						<Button onClick={finalizeIdea} size="sm" variant="secondary">
-							Finalize & Go to Steps
-							<ArrowRight className="h-4 w-4 ml-2" />
+						<Button
+							onClick={finalizeIdea}
+							size="sm"
+							variant="secondary"
+							disabled={isLoading}
+						>
+							{isLoading ? (
+								<>
+									<Loader2 className="h-4 w-4 mr-2 animate-spin" />
+									Finalizing...
+								</>
+							) : (
+								<>
+									Finalize & Go to Steps
+									<ArrowRight className="h-4 w-4 ml-2" />
+								</>
+							)}
 						</Button>
 					)}
 				</div>
@@ -187,9 +208,9 @@ export function IdeaChatSimple({
 			</div>
 
 			{/* Chat Interface */}
-			<div className="flex-1 flex flex-col">
-				<div className="p-6 flex-1">
-					<GenericChat config={chatConfig} />
+			<div className="flex-1 flex flex-col min-h-0">
+				<div className="p-6 flex-1 flex flex-col min-h-0">
+					<GenericChat config={chatConfig} className="h-full" />
 				</div>
 			</div>
 		</div>

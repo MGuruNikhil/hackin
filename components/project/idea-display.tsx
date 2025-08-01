@@ -63,6 +63,8 @@ export function IdeaDisplay({ projectId }: IdeaDisplayProps) {
 			if (result.success) {
 				setSelectedIdea(null)
 				toast.success("Idea unselected successfully!")
+				// Dispatch event to notify other components
+				window.dispatchEvent(new CustomEvent("idea-unselected"))
 			} else {
 				toast.error(result.error || "Failed to unselect idea")
 			}

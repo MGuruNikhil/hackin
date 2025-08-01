@@ -2,7 +2,7 @@ import { format } from "date-fns"
 import Link from "next/link"
 import { getProjectWithTeam } from "@/app/actions/project"
 import { DeleteProjectButton } from "@/components/project/delete-project-button"
-import { IdeaDisplay } from "@/components/project/idea-display"
+import { ProjectIdeaAndSteps } from "@/components/project/project-idea-and-steps"
 import TeamManagement from "@/components/project/team-management"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -181,8 +181,8 @@ export default async function ProjectPage({
 				isOwner={isOwner}
 			/>
 
-			{/* Project Idea Section */}
-			<IdeaDisplay projectId={project.id} />
+			{/* Project Idea and Steps Sections */}
+			<ProjectIdeaAndSteps projectId={project.id} />
 		</div>
 	)
 }

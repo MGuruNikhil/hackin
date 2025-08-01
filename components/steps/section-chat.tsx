@@ -3,6 +3,8 @@
 import {
 	ArrowLeft,
 	CheckCircle2,
+	ChevronDown,
+	ChevronRight,
 	Circle,
 	MessageSquare,
 	Target,
@@ -10,6 +12,11 @@ import {
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { GenericChat } from "@/components/ui/generic-chat"
 
 type Todo = {
@@ -58,6 +65,7 @@ export function SectionChat({
 	const [todos, setTodos] = useState<Todo[]>([])
 	const [sectionState, setSectionState] = useState<Section>(section)
 	const [loading, setLoading] = useState(false)
+	const [detailsExpanded, setDetailsExpanded] = useState(true)
 
 	const loadTodos = useCallback(async () => {
 		setLoading(true)
@@ -246,7 +254,7 @@ export function SectionChat({
 
 	if (loading) {
 		return (
-			<div className="space-y-6">
+			<div className="space-y-6 p-4">
 				<div className="space-y-4">
 					<div className="h-8 bg-muted rounded w-64 animate-pulse" />
 					<div className="h-4 bg-muted rounded w-96 animate-pulse" />
@@ -260,29 +268,31 @@ export function SectionChat({
 		)
 	}
 	return (
-		<div className="space-y-6">
-			{/* Header */}
-			<div className="space-y-6">
-				<div className="flex items-start justify-between">
-					<div className="space-y-3">
-						<Link
-							href={`/project/${projectId}/idea/${ideaId}/steps`}
-							className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
-						>
-							<ArrowLeft className="h-4 w-4 mr-1" />
-							Back to Implementation Plan
-						</Link>
+		<div className="h-full flex flex-col bg-background">
+			{/* Navigation */}
+			<div className="sticky top-0 z-20 p-4 border-b bg-background">
+				<Link
+					href={`/project/${projectId}/idea/${ideaId}/steps`}
+					className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+				>
+					<ArrowLeft className="h-4 w-4 mr-1" />
+					Back to Implementation Plan
+				</Link>
+			</div>
 
-						<div className="space-y-3">
-							<div className="flex items-center justify-between">
-								<div className="flex items-center gap-3">
-									<div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
-										<Target className="w-5 h-5 text-muted-foreground" />
-									</div>
-									<h1 className="text-2xl font-semibold text-foreground">
-										{sectionState.title}
-									</h1>
-								</div>
+			{/* Header */}
+			<div className="p-6 border-b bg-background">
+				<div className="flex items-start gap-4">
+					<div className="p-2 bg-primary/10 rounded-lg">
+						<Target className="h-5 w-5 text-primary" />
+					</div>
+					<div className="flex-1">
+						<div className="flex items-center justify-between">
+							<h1 className="text-xl font-semibold">{sectionState.title}</h1>
+							<div className="flex items-center gap-2">
+								<span className="text-sm text-muted-foreground">
+									{sectionState.isCompleted ? "Completed" : "Mark as complete"}
+								</span>
 								<button
 									type="button"
 									onClick={toggleSectionCompletion}
@@ -295,107 +305,124 @@ export function SectionChat({
 									)}
 								</button>
 							</div>
-							<div className="space-y-1">
-								{sectionState.description && (
-									<p className="text-muted-foreground">
-										{sectionState.description}
-									</p>
-								)}{" "}
-								<p className="text-sm text-muted-foreground">
-									From: <span className="font-medium">{idea.title}</span>
-								</p>
-							</div>
+						</div>
+						{sectionState.description && (
+							<p className="text-muted-foreground mt-1">
+								{sectionState.description}
+							</p>
+						)}
+						<p className="text-sm text-muted-foreground mt-1">
+							From: <span className="font-medium">{idea.title}</span>
+						</p>
+
+						{/* Section details */}
+						<div className="mt-3 p-4 bg-muted/30 rounded-lg">
+							<Collapsible
+								open={detailsExpanded}
+								onOpenChange={setDetailsExpanded}
+							>
+								<CollapsibleTrigger className="w-full">
+									<div className="flex items-center justify-between hover:bg-muted/50 rounded p-2 -m-2">
+										<h4 className="font-medium text-left">
+											Section Details ({todos.length} tasks)
+										</h4>
+										{detailsExpanded ? (
+											<ChevronDown className="h-4 w-4" />
+										) : (
+											<ChevronRight className="h-4 w-4" />
+										)}
+									</div>
+								</CollapsibleTrigger>
+								<CollapsibleContent>
+									<div className="mt-3 space-y-4">
+										{/* Progress Overview */}
+										{todos.length > 0 && (
+											<div>
+												<div className="flex items-center justify-between mb-3">
+													<div>
+														<div className="text-sm font-medium">
+															{completedTodos} of {todos.length} tasks completed
+														</div>
+													</div>
+													<div className="text-lg font-bold">
+														{progressPercentage.toFixed(0)}%
+													</div>
+												</div>
+												<div className="w-full bg-muted rounded-full h-2">
+													<div
+														className="bg-primary h-2 rounded-full transition-all duration-300"
+														style={{ width: `${progressPercentage}%` }}
+													/>
+												</div>
+											</div>
+										)}
+
+										{/* Tasks */}
+										<div>
+											<h5 className="font-medium mb-3">Tasks</h5>
+											{todos.length === 0 ? (
+												<div className="text-center py-8">
+													<div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center mx-auto mb-3">
+														<MessageSquare className="w-6 h-6 text-muted-foreground" />
+													</div>
+													<h6 className="font-medium mb-2">No tasks yet</h6>
+													<p className="text-sm text-muted-foreground">
+														Use the chat below to generate tasks for this
+														section
+													</p>
+												</div>
+											) : (
+												<div className="space-y-2">
+													{todos.map(todo => (
+														<div
+															key={todo.id}
+															className="flex items-start gap-3 p-3 rounded border bg-background"
+														>
+															<button
+																type="button"
+																onClick={() => toggleTodoCompletion(todo.id)}
+																className="mt-0.5"
+															>
+																{todo.isCompleted ? (
+																	<CheckCircle2 className="w-4 h-4 text-green-600" />
+																) : (
+																	<Circle className="w-4 h-4 text-muted-foreground" />
+																)}
+															</button>
+
+															<div className="flex-1 min-w-0">
+																<p
+																	className={`text-sm ${
+																		todo.isCompleted
+																			? "line-through text-muted-foreground"
+																			: "text-foreground"
+																	}`}
+																>
+																	{todo.title}
+																</p>
+																{todo.description && (
+																	<p className="text-xs text-muted-foreground mt-1">
+																		{todo.description}
+																	</p>
+																)}
+															</div>
+														</div>
+													))}
+												</div>
+											)}
+										</div>
+									</div>
+								</CollapsibleContent>
+							</Collapsible>
 						</div>
 					</div>
 				</div>
-
-				{/* Progress Overview */}
-				{todos.length > 0 && (
-					<div className="bg-muted/50 rounded p-4 border">
-						<div className="flex items-center justify-between mb-3">
-							<div>
-								<div className="text-sm font-medium">
-									{completedTodos} of {todos.length} tasks completed
-								</div>
-							</div>
-							<div className="text-lg font-bold">
-								{progressPercentage.toFixed(0)}%
-							</div>
-						</div>
-						<div className="w-full bg-muted rounded-full h-2">
-							<div
-								className="bg-primary h-2 rounded-full transition-all duration-300"
-								style={{ width: `${progressPercentage}%` }}
-							/>
-						</div>
-					</div>
-				)}
 			</div>
 
-			{/* Tasks */}
-			{todos.length === 0 ? (
-				<div className="bg-muted/50 rounded p-12 text-center border">
-					<div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center mx-auto mb-4">
-						<MessageSquare className="w-8 h-8 text-muted-foreground" />
-					</div>
-					<h3 className="text-lg font-medium text-foreground mb-2">
-						No tasks yet
-					</h3>
-					<p className="text-muted-foreground mb-6">
-						Use the chat below to generate tasks for this section
-					</p>
-				</div>
-			) : (
-				<div className="space-y-2">
-					<h3 className="text-lg font-semibold text-foreground">
-						Tasks ({todos.length})
-					</h3>
-					<div className="space-y-2">
-						{todos.map(todo => (
-							<div
-								key={todo.id}
-								className="flex items-start gap-3 p-3 rounded border bg-muted/30"
-							>
-								<button
-									type="button"
-									onClick={() => toggleTodoCompletion(todo.id)}
-									className="mt-0.5"
-								>
-									{todo.isCompleted ? (
-										<CheckCircle2 className="w-4 h-4 text-green-600" />
-									) : (
-										<Circle className="w-4 h-4 text-muted-foreground" />
-									)}
-								</button>
-
-								<div className="flex-1 min-w-0">
-									<p
-										className={`text-sm ${
-											todo.isCompleted
-												? "line-through text-muted-foreground"
-												: "text-foreground"
-										}`}
-									>
-										{todo.title}
-									</p>
-									{todo.description && (
-										<p className="text-xs text-muted-foreground mt-1">
-											{todo.description}
-										</p>
-									)}
-								</div>
-							</div>
-						))}
-					</div>
-				</div>
-			)}
-
 			{/* Chat Interface */}
-			<div className="space-y-4">
-				<h3 className="text-lg font-semibold text-foreground">Section Chat</h3>
-
-				<div className="h-[500px]">
-					<GenericChat config={chatConfig} />
+			<div className="flex-1 flex flex-col min-h-0">
+				<div className="p-6 flex-1 flex flex-col min-h-0">
+					<GenericChat config={chatConfig} className="h-full" />
 				</div>
 			</div>
 		</div>
