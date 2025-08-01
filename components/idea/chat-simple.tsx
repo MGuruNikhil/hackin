@@ -6,9 +6,11 @@ import {
 	Check,
 	LightbulbIcon,
 	Sparkles,
+	Loader2,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { toast } from "sonner"
 import { Markdown } from "@/components/markdown/render"
 import { Badge } from "@/components/ui/badge"
@@ -34,6 +36,7 @@ export function IdeaChatSimple({
 	selectedIdea,
 }: IdeaChatSimpleProps) {
 	const router = useRouter()
+	const [isLoading, setIsLoading] = useState(false)
 
 	const parseTechStack = (content: string): string[] => {
 		const techMatch = content.match(/\*\*Tech Stack:\*\* (.+?)(?:\n|$)/)
@@ -55,6 +58,7 @@ export function IdeaChatSimple({
 	const timeEstimate = parseTimeEstimate(selectedIdea.content)
 
 	const finalizeIdea = async () => {
+		setIsLoading(true)
 		try {
 			const response = await fetch("/api/ideas", {
 				method: "POST",
@@ -67,6 +71,8 @@ export function IdeaChatSimple({
 			if (result.success) {
 				// Trigger sidebar refresh
 				window.dispatchEvent(new CustomEvent("sidebar-refresh"))
+				// Notify that an idea was selected
+				window.dispatchEvent(new CustomEvent("idea-selected"))
 
 				toast.success("Idea finalized successfully!")
 
@@ -80,6 +86,8 @@ export function IdeaChatSimple({
 			toast.error(
 				`Error finalizing idea: ${error instanceof Error ? error.message : "Unknown error"}`,
 			)
+		} finally {
+			setIsLoading(false)
 		}
 	}
 
@@ -135,9 +143,23 @@ export function IdeaChatSimple({
 							<ArrowRight className="h-4 w-4 ml-2" />
 						</Button>
 					) : (
-						<Button onClick={finalizeIdea} size="sm" variant="secondary">
-							Finalize & Go to Steps
-							<ArrowRight className="h-4 w-4 ml-2" />
+						<Button 
+							onClick={finalizeIdea} 
+							size="sm" 
+							variant="secondary" 
+							disabled={isLoading}
+						>
+							{isLoading ? (
+								<>
+									<Loader2 className="h-4 w-4 mr-2 animate-spin" />
+									Finalizing...
+								</>
+							) : (
+								<>
+									Finalize & Go to Steps
+									<ArrowRight className="h-4 w-4 ml-2" />
+								</>
+							)}
 						</Button>
 					)}
 				</div>

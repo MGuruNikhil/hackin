@@ -1,4 +1,6 @@
 export { DeleteProjectButton } from "./delete-project-button"
 export { IdeaDisplay } from "./idea-display"
 export { default as ProjectForm } from "./project-form"
+export { ProjectIdeaAndSteps } from "./project-idea-and-steps"
+export { StepsDisplay } from "./steps-display"
 export { default as TeamManagement } from "./team-management"

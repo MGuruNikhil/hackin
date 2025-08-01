@@ -509,6 +509,19 @@ export function StepsGenerator({
 						Generate an AI-powered implementation plan or create sections
 						manually
 					</p>
+					<Button onClick={generateSections} disabled={generating}>
+						{generating ? (
+							<>
+								<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+								Generating...
+							</>
+						) : (
+							<>
+								<Sparkles className="w-4 h-4 mr-2" />
+								Generate Plan
+							</>
+						)}
+					</Button>
 				</div>
 			) : (
 				<div className="space-y-6">
