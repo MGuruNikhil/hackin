@@ -206,18 +206,30 @@ export function IdeaGenerator({ projectId }: IdeaGeneratorProps) {
 		}
 	}
 
-	const parseTechStack = (content: string): string[] => {
-		const techMatch = content.match(/\*\*Tech Stack:\*\* (.+?)(?:\n|$)/)
+	const parseTechStack = (idea: Idea): string[] => {
+		// Use structured field if available, otherwise parse from content
+		if (idea.techStack && Array.isArray(idea.techStack)) {
+			return idea.techStack
+		}
+		const techMatch = idea.content.match(/\*\*Tech Stack:\*\* (.+?)(?:\n|$)/)
 		return techMatch ? techMatch[1].split(", ") : []
 	}
 
-	const parseDifficulty = (content: string): string => {
-		const diffMatch = content.match(/\*\*Difficulty:\*\* (.+?)(?:\n|$)/)
+	const parseDifficulty = (idea: Idea): string => {
+		// Use structured field if available, otherwise parse from content
+		if (idea.difficulty) {
+			return idea.difficulty
+		}
+		const diffMatch = idea.content.match(/\*\*Difficulty:\*\* (.+?)(?:\n|$)/)
 		return diffMatch ? diffMatch[1] : "Unknown"
 	}
 
-	const parseTimeEstimate = (content: string): string => {
-		const timeMatch = content.match(/\*\*Time Estimate:\*\* (.+?)(?:\n|$)/)
+	const parseTimeEstimate = (idea: Idea): string => {
+		// Use structured field if available, otherwise parse from content
+		if (idea.timeEstimate) {
+			return idea.timeEstimate
+		}
+		const timeMatch = idea.content.match(/\*\*Time Estimate:\*\* (.+?)(?:\n|$)/)
 		return timeMatch ? timeMatch[1] : "Unknown"
 	}
 
@@ -356,9 +368,9 @@ export function IdeaGenerator({ projectId }: IdeaGeneratorProps) {
 			) : (
 				<div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
 					{ideas.map(idea => {
-						const techStack = parseTechStack(idea.content)
-						const difficulty = parseDifficulty(idea.content)
-						const timeEstimate = parseTimeEstimate(idea.content)
+						const techStack = parseTechStack(idea)
+						const difficulty = parseDifficulty(idea)
+						const timeEstimate = parseTimeEstimate(idea)
 
 						return (
 							<Card
