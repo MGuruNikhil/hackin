@@ -256,28 +256,6 @@ We welcome contributions from the community! Here's how you can help:
 - Write **descriptive commit messages**
 - Add **JSDoc comments** for complex functions
 
-## 🗺️ Roadmap
-
-### Short Term (Next 2-3 months)
-- [ ] **Mobile app** - React Native implementation
-- [ ] **Real-time collaboration** - Live team updates
-- [ ] **Integration marketplace** - Connect popular dev tools
-- [ ] **Advanced AI models** - GPT-4, Claude integration
-- [ ] **Template library** - Pre-built project templates
-
-### Medium Term (3-6 months)
-- [ ] **Voice commands** - Voice-controlled task management
-- [ ] **Code generation** - AI-powered boilerplate creation
-- [ ] **Deployment automation** - One-click deployment to various platforms
-- [ ] **Mentor matching** - Connect with experienced developers
-- [ ] **Hackathon discovery** - Find and join hackathons
-
-### Long Term (6+ months)
-- [ ] **White-label solutions** - Custom Hackin for organizations
-- [ ] **Advanced analytics** - Team performance insights
-- [ ] **AI code review** - Automated code quality checks
-- [ ] **Global hackathon platform** - Host and organize events
-
 ## 📄 License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
